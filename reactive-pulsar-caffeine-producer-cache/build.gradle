@@ -1,0 +1,17 @@
+plugins {
+    id 'reactive-pulsar.library-conventions'
+}
+
+dependencies {
+    api project(':reactive-pulsar-adapter')
+    api 'com.github.ben-manes.caffeine:caffeine:2.9.2'
+    api 'org.apache.pulsar:pulsar-client:2.8.0'
+    api platform('io.projectreactor:reactor-bom:2020.0.9')
+    api 'io.projectreactor:reactor-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    testImplementation platform('io.projectreactor:reactor-bom:2020.0.9')
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'org.assertj:assertj-core:3.20.2'
+}
+
+description = "Caffeine implementation of ReactiveProducerCache"

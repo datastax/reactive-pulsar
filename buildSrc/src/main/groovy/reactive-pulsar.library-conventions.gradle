@@ -1,0 +1,77 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+sourceCompatibility = '8'
+
+publishing {
+    repositories {
+        maven {
+            if (project.hasProperty("publishDebug")) {
+                url = project.property("publishDebug")
+            } else {
+                name = 'ossrh'
+                url = version.endsWith('-SNAPSHOT') ? 'https://oss.sonatype.org/content/repositories/snapshots' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+                credentials(PasswordCredentials)
+            }
+        }
+    }
+    publications {
+        mavenJava(MavenPublication) { publication ->
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                afterEvaluate {
+                    name = project.name
+                    description = project.description
+                }
+                url = 'https://github.com/lhotari/reactive-pulsar'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'lhotari'
+                        name = 'Lari Hotari'
+                        email = 'lari@hotari.net'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/lhotari/reactive-pulsar.git'
+                    developerConnection = 'scm:git:https://github.com/lhotari/reactive-pulsar.git'
+                    url = 'https://github.com/lhotari/reactive-pulsar'
+                }
+            }
+        }
+    }
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
+signing {
+    required !project.hasProperty("publishDebug")
+    sign publishing.publications.mavenJava
+}
