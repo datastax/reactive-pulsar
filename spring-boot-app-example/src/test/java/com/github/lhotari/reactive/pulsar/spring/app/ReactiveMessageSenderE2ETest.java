@@ -1,6 +1,7 @@
 package com.github.lhotari.reactive.pulsar.spring.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import com.github.lhotari.reactive.pulsar.adapter.MessageSpec;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSender;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarAdapter;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import reactor.core.publisher.Mono;
 
 @SpringBootTest
 public class ReactiveMessageSenderE2ETest {
@@ -47,7 +49,8 @@ public class ReactiveMessageSenderE2ETest {
                 .messageSender(Schema.STRING)
                 .topic(topicName)
                 .create();
-        MessageId messageId = messageSender.sendMessagePayload("Hello world!")
+        MessageId messageId = messageSender
+                .sendMessage(Mono.just(MessageSpec.<String>builder().value("Hello world!").build()))
                 .block();
         assertThat(messageId).isNotNull();
 
@@ -70,7 +73,8 @@ public class ReactiveMessageSenderE2ETest {
                 .messageSender(Schema.STRING)
                 .topic(topicName)
                 .create();
-        MessageId messageId = messageSender.sendMessagePayload("Hello world!")
+        MessageId messageId = messageSender
+                .sendMessage(Mono.just(MessageSpec.<String>builder().value("Hello world!").build()))
                 .block();
         assertThat(messageId).isNotNull();
 

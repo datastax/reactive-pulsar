@@ -38,36 +38,24 @@ class DefaultReactiveMessageSender<T>
     }
 
     @Override
-    public Mono<MessageId> sendMessage(MessageConfigurer<T> messageConfigurer) {
+    public Mono<MessageId> sendMessage(Mono<MessageSpec<T>> messageSpec) {
         return createReactiveProducerAdapter()
-                .usingProducer(producer ->
-                        createMessageMono(messageConfigurer, producer));
+                .usingProducer(producer -> messageSpec.flatMap(m -> createMessageMono(m, producer)));
     }
 
-    private Mono<MessageId> createMessageMono(MessageConfigurer<T> messageConfigurer, Producer<T> producer) {
+    private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer) {
         return Mono.fromFuture(() -> {
             TypedMessageBuilder<T> typedMessageBuilder = producer.newMessage();
-            messageConfigurer.configure(new MessageBuilderAdapter<>(typedMessageBuilder));
+            messageSpec.configure(typedMessageBuilder);
             return typedMessageBuilder.sendAsync();
         });
     }
 
     @Override
-    public Mono<MessageId> sendMessagePayload(T payload) {
-        return sendMessage(messageBuilder -> messageBuilder.value(payload));
-    }
-
-    @Override
-    public Flux<MessageId> sendMessages(Flux<MessageConfigurer<T>> messageConfigurers) {
+    public Flux<MessageId> sendMessages(Flux<MessageSpec<T>> messageSpecs) {
         return createReactiveProducerAdapter()
                 .usingProducerMany(producer ->
-                        messageConfigurers.concatMap(messageConfigurer ->
+                        messageSpecs.concatMap(messageConfigurer ->
                                 createMessageMono(messageConfigurer, producer)));
-    }
-
-    @Override
-    public Flux<MessageId> sendMessagePayloads(Flux<T> payloads) {
-        return Flux.defer(() -> sendMessages(payloads.map(payload ->
-                messageBuilder -> messageBuilder.value(payload))));
     }
 }

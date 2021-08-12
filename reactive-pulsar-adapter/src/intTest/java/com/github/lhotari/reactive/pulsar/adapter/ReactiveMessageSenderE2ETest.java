@@ -11,6 +11,7 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 public class ReactiveMessageSenderE2ETest {
 
@@ -28,7 +29,8 @@ public class ReactiveMessageSenderE2ETest {
                     .messageSender(Schema.STRING)
                     .topic(topicName)
                     .create();
-            MessageId messageId = messageSender.sendMessagePayload("Hello world!")
+            MessageId messageId = messageSender
+                    .sendMessage(Mono.just(MessageSpec.<String>builder().value("Hello world!").build()))
                     .block();
             assertThat(messageId).isNotNull();
 
@@ -54,7 +56,8 @@ public class ReactiveMessageSenderE2ETest {
                     .messageSender(Schema.STRING)
                     .topic(topicName)
                     .create();
-            MessageId messageId = messageSender.sendMessagePayload("Hello world!")
+            MessageId messageId = messageSender
+                    .sendMessage(Mono.just(MessageSpec.<String>builder().value("Hello world!").build()))
                     .block();
             assertThat(messageId).isNotNull();
 

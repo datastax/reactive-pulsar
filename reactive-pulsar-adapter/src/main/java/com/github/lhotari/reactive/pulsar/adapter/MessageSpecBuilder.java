@@ -6,14 +6,14 @@ import java.util.concurrent.TimeUnit;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.SubscriptionType;
 
-public interface MessageBuilder<T> {
+public interface MessageSpecBuilder<T> {
     /**
      * Sets the key of the message for routing policy.
      *
      * @param key the partitioning key for the message
      * @return the message builder instance
      */
-    MessageBuilder<T> key(String key);
+    MessageSpecBuilder<T> key(String key);
 
     /**
      * Sets the bytes of the key of the message for routing policy.
@@ -22,7 +22,7 @@ public interface MessageBuilder<T> {
      * @param key routing key for message, in byte array form
      * @return the message builder instance
      */
-    MessageBuilder<T> keyBytes(byte[] key);
+    MessageSpecBuilder<T> keyBytes(byte[] key);
 
     /**
      * Sets the ordering key of the message for message dispatch in {@link SubscriptionType#Key_Shared} mode.
@@ -31,7 +31,7 @@ public interface MessageBuilder<T> {
      * @param orderingKey the ordering key for the message
      * @return the message builder instance
      */
-    MessageBuilder<T> orderingKey(byte[] orderingKey);
+    MessageSpecBuilder<T> orderingKey(byte[] orderingKey);
 
     /**
      * Set a domain object on the message.
@@ -39,7 +39,7 @@ public interface MessageBuilder<T> {
      * @param value the domain object
      * @return the message builder instance
      */
-    MessageBuilder<T> value(T value);
+    MessageSpecBuilder<T> value(T value);
 
     /**
      * Sets a new property on a message.
@@ -48,14 +48,14 @@ public interface MessageBuilder<T> {
      * @param value the associated value
      * @return the message builder instance
      */
-    MessageBuilder<T> property(String name, String value);
+    MessageSpecBuilder<T> property(String name, String value);
 
     /**
      * Add all the properties in the provided map.
      *
      * @return the message builder instance
      */
-    MessageBuilder<T> properties(Map<String, String> properties);
+    MessageSpecBuilder<T> properties(Map<String, String> properties);
 
     /**
      * Set the event time for a given message.
@@ -67,7 +67,7 @@ public interface MessageBuilder<T> {
      *
      * @return the message builder instance
      */
-    MessageBuilder<T> eventTime(long timestamp);
+    MessageSpecBuilder<T> eventTime(long timestamp);
 
     /**
      * Specify a custom sequence id for the message being published.
@@ -84,7 +84,7 @@ public interface MessageBuilder<T> {
      * @param sequenceId the sequence id to assign to the current message
      * @return the message builder instance
      */
-    MessageBuilder<T> sequenceId(long sequenceId);
+    MessageSpecBuilder<T> sequenceId(long sequenceId);
 
     /**
      * Override the geo-replication clusters for this message.
@@ -92,14 +92,14 @@ public interface MessageBuilder<T> {
      * @param clusters the list of clusters.
      * @return the message builder instance
      */
-    MessageBuilder<T> replicationClusters(List<String> clusters);
+    MessageSpecBuilder<T> replicationClusters(List<String> clusters);
 
     /**
      * Disable geo-replication for this message.
      *
      * @return the message builder instance
      */
-    MessageBuilder<T> disableReplication();
+    MessageSpecBuilder<T> disableReplication();
 
     /**
      * Deliver the message only at or after the specified absolute timestamp.
@@ -113,7 +113,7 @@ public interface MessageBuilder<T> {
      * @param timestamp absolute timestamp indicating when the message should be delivered to consumers
      * @return the message builder instance
      */
-    MessageBuilder<T> deliverAt(long timestamp);
+    MessageSpecBuilder<T> deliverAt(long timestamp);
 
     /**
      * Request to deliver the message only after the specified relative delay.
@@ -126,5 +126,8 @@ public interface MessageBuilder<T> {
      * @param unit  the time unit for the delay
      * @return the message builder instance
      */
-    MessageBuilder<T> deliverAfter(long delay, TimeUnit unit);
+    MessageSpecBuilder<T> deliverAfter(long delay, TimeUnit unit);
+
+
+    MessageSpec<T> build();
 }
