@@ -40,7 +40,7 @@ public class ReactiveMessageReaderE2ETest {
                     reactivePulsarAdapter.reader().messageReader(Schema.STRING)
                             .topic(topicName)
                             .create();
-            List<String> messages = messageReader.readMessages(StartAtSpec.ofEarliest(), EndOfStreamAction.COMPLETE)
+            List<String> messages = messageReader.readMessages()
                     .map(Message::getValue).collectList().block();
 
             assertThat(messages)

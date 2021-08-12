@@ -5,6 +5,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ReactiveMessageReader<T> {
-    Mono<Message<T>> readMessage(StartAtSpec startAtSpec, EndOfStreamAction endOfStreamAction);
-    Flux<Message<T>> readMessages(StartAtSpec startAtSpec, EndOfStreamAction endOfStreamAction);
+    Mono<Message<T>> readMessage();
+    Flux<Message<T>> readMessages();
 }

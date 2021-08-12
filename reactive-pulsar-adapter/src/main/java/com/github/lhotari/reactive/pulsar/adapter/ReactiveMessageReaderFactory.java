@@ -5,5 +5,9 @@ public interface ReactiveMessageReaderFactory<T> {
 
     ReactiveMessageReaderFactory<T> topic(String topicName);
 
+    ReactiveMessageReaderFactory<T> startAtSpec(StartAtSpec startAtSpec);
+
+    ReactiveMessageReaderFactory<T> endOfStreamAction(EndOfStreamAction endOfStreamAction);
+
     ReactiveMessageReader<T> create();
 }

@@ -18,13 +18,19 @@ class DefaultReactiveMessageReader<T> implements ReactiveMessageReader<T> {
     private final ReaderConfigurer<T> readerConfigurer;
     private final String topicName;
     private final ReactiveReaderAdapterFactory reactiveReaderAdapterFactory;
+    private final StartAtSpec startAtSpec;
+    private final EndOfStreamAction endOfStreamAction;
 
-    public DefaultReactiveMessageReader(Schema<T> schema, ReaderConfigurer<T> readerConfigurer, String topicName,
-                                        ReactiveReaderAdapterFactory reactiveReaderAdapterFactory) {
+    public DefaultReactiveMessageReader(ReactiveReaderAdapterFactory reactiveReaderAdapterFactory, Schema<T> schema,
+                                        ReaderConfigurer<T> readerConfigurer, String topicName,
+                                        StartAtSpec startAtSpec,
+                                        EndOfStreamAction endOfStreamAction) {
         this.schema = schema;
         this.readerConfigurer = readerConfigurer;
         this.topicName = topicName;
         this.reactiveReaderAdapterFactory = reactiveReaderAdapterFactory;
+        this.startAtSpec = startAtSpec;
+        this.endOfStreamAction = endOfStreamAction;
     }
 
     ReactiveReaderAdapter<T> createReactiveReaderAdapter(StartAtSpec startAtSpec) {
@@ -73,13 +79,13 @@ class DefaultReactiveMessageReader<T> implements ReactiveMessageReader<T> {
     }
 
     @Override
-    public Mono<Message<T>> readMessage(StartAtSpec startAtSpec, EndOfStreamAction endOfStreamAction) {
+    public Mono<Message<T>> readMessage() {
         return createReactiveReaderAdapter(startAtSpec)
                 .usingReader(reader -> readNextMessage(reader, endOfStreamAction));
     }
 
     @Override
-    public Flux<Message<T>> readMessages(StartAtSpec startAtSpec, EndOfStreamAction endOfStreamAction) {
+    public Flux<Message<T>> readMessages() {
         return createReactiveReaderAdapter(startAtSpec)
                 .usingReaderMany(reader -> {
                     Mono<Message<T>> messageMono = readNextMessage(reader, endOfStreamAction);

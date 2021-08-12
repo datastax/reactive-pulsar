@@ -7,6 +7,8 @@ class DefaultReactiveMessageReaderFactory<T> implements ReactiveMessageReaderFac
     private final Schema<T> schema;
     private ReaderConfigurer<T> readerConfigurer;
     private String topicName;
+    private StartAtSpec startAtSpec = StartAtSpec.ofEarliest();
+    private EndOfStreamAction endOfStreamAction = EndOfStreamAction.COMPLETE;
 
     public DefaultReactiveMessageReaderFactory(ReactiveReaderAdapterFactory reactiveReaderAdapterFactory,
                                                Schema<T> schema) {
@@ -27,7 +29,20 @@ class DefaultReactiveMessageReaderFactory<T> implements ReactiveMessageReaderFac
     }
 
     @Override
+    public ReactiveMessageReaderFactory<T> startAtSpec(StartAtSpec startAtSpec) {
+        this.startAtSpec = startAtSpec;
+        return this;
+    }
+
+    @Override
+    public ReactiveMessageReaderFactory<T> endOfStreamAction(EndOfStreamAction endOfStreamAction) {
+        this.endOfStreamAction = endOfStreamAction;
+        return this;
+    }
+
+    @Override
     public ReactiveMessageReader<T> create() {
-        return new DefaultReactiveMessageReader<>(schema, readerConfigurer, topicName, reactiveReaderAdapterFactory);
+        return new DefaultReactiveMessageReader<>(reactiveReaderAdapterFactory, schema, readerConfigurer, topicName,
+                startAtSpec, endOfStreamAction);
     }
 }
