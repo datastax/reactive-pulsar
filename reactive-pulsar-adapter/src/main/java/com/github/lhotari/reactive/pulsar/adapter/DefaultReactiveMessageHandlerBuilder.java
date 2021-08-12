@@ -8,7 +8,7 @@ import org.apache.pulsar.client.api.Schema;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
-class DefaultReactiveConsumerPipelineBuilder<T> implements ReactiveConsumerPipelineBuilder<T> {
+class DefaultReactiveMessageHandlerBuilder<T> implements ReactiveMessageHandlerBuilder<T> {
     private final Schema<T> schema;
     private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
     private ConsumerConfigurer<T> consumerConfigurer;
@@ -20,51 +20,51 @@ class DefaultReactiveConsumerPipelineBuilder<T> implements ReactiveConsumerPipel
             .maxBackoff(Duration.ofMinutes(1));
     private Duration handlingTimeout = Duration.ofSeconds(120);
 
-    public DefaultReactiveConsumerPipelineBuilder(Schema<T> schema,
-                                                  ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory) {
+    public DefaultReactiveMessageHandlerBuilder(Schema<T> schema,
+                                                ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory) {
         this.schema = schema;
         this.reactiveConsumerAdapterFactory = reactiveConsumerAdapterFactory;
     }
 
     @Override
-    public ReactiveConsumerPipelineBuilder<T> consumerConfigurer(ConsumerConfigurer<T> consumerConfigurer) {
+    public ReactiveMessageHandlerBuilder<T> consumerConfigurer(ConsumerConfigurer<T> consumerConfigurer) {
         this.consumerConfigurer = consumerConfigurer;
         return this;
     }
 
     @Override
-    public ReactiveConsumerPipelineBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler) {
+    public ReactiveMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler) {
         this.messageHandler = messageHandler;
         return this;
     }
 
     @Override
-    public ReactiveConsumerPipelineBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger) {
+    public ReactiveMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger) {
         this.errorLogger = errorLogger;
         return this;
     }
 
     @Override
-    public ReactiveConsumerPipelineBuilder<T> consumeLoopRetrySpec(Retry consumeLoopRetrySpec) {
+    public ReactiveMessageHandlerBuilder<T> consumeLoopRetrySpec(Retry consumeLoopRetrySpec) {
         this.consumeLoopRetrySpec = consumeLoopRetrySpec;
         return this;
     }
 
     @Override
-    public ReactiveConsumerPipelineBuilder<T> pipelineRetrySpec(Retry pipelineRetrySpec) {
+    public ReactiveMessageHandlerBuilder<T> pipelineRetrySpec(Retry pipelineRetrySpec) {
         this.pipelineRetrySpec = pipelineRetrySpec;
         return this;
     }
 
     @Override
-    public ReactiveConsumerPipelineBuilder<T> handlingTimeout(Duration handlingTimeout) {
+    public ReactiveMessageHandlerBuilder<T> handlingTimeout(Duration handlingTimeout) {
         this.handlingTimeout = handlingTimeout;
         return this;
     }
 
     @Override
-    public ReactiveConsumerPipeline build() {
-        return new DefaultReactiveConsumerPipeline<T>(this);
+    public ReactiveMessageHandler build() {
+        return new DefaultReactiveMessageHandler<T>(this);
     }
 
     public Schema<T> getSchema() {

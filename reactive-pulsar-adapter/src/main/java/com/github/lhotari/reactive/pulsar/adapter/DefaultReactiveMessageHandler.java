@@ -13,8 +13,8 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
-class DefaultReactiveConsumerPipeline<T>
-        implements ReactiveConsumerPipeline {
+class DefaultReactiveMessageHandler<T>
+        implements ReactiveMessageHandler {
     private final Schema<T> schema;
     private final ConsumerConfigurer<T> consumerConfigurer;
     private final Function<Message<T>, Mono<Void>> messageHandler;
@@ -25,7 +25,7 @@ class DefaultReactiveConsumerPipeline<T>
     private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
     private final Disposable killSwitch;
 
-    public DefaultReactiveConsumerPipeline(DefaultReactiveConsumerPipelineBuilder<T> builder) {
+    public DefaultReactiveMessageHandler(DefaultReactiveMessageHandlerBuilder<T> builder) {
         this.schema = builder.getSchema();
         this.consumerConfigurer = Objects.requireNonNull(builder.getConsumerConfigurer());
         this.messageHandler = Objects.requireNonNull(builder.getMessageHandler());

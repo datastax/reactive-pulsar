@@ -20,8 +20,8 @@ class DefaultReactivePulsarClient implements ReactivePulsarClient {
     }
 
     @Override
-    public <T> ReactiveConsumerPipelineBuilder<T> pipeline(Schema<T> schema) {
-        return new DefaultReactiveConsumerPipelineBuilder<>(schema, reactivePulsarAdapter.consumer());
+    public <T> ReactiveMessageHandlerBuilder<T> messageHandler(Schema<T> schema) {
+        return new DefaultReactiveMessageHandlerBuilder<>(schema, reactivePulsarAdapter.consumer());
     }
 
 }

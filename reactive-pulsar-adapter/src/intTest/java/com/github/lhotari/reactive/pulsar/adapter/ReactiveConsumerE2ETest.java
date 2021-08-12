@@ -39,8 +39,8 @@ public class ReactiveConsumerE2ETest {
 
             List<String> messages = Collections.synchronizedList(new ArrayList<>());
             CountDownLatch latch = new CountDownLatch(100);
-            try (ReactiveConsumerPipeline reactiveConsumerPipeline =
-                         reactivePulsarClient.pipeline(Schema.STRING)
+            try (ReactiveMessageHandler reactiveMessageHandler =
+                         reactivePulsarClient.messageHandler(Schema.STRING)
                                  .consumerConfigurer(consumerBuilder ->
                                          consumerBuilder.subscriptionName("sub")
                                                  .topic(topicName))
