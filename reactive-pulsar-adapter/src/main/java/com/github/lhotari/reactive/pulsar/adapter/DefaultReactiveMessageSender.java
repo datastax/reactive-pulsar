@@ -13,14 +13,16 @@ class DefaultReactiveMessageSender<T>
     private final Schema<T> schema;
     private final ProducerConfigurer<T> producerConfigurer;
     private final String topicName;
+    private final ReactiveProducerCache producerCache;
     private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
 
     public DefaultReactiveMessageSender(Schema<T> schema, ProducerConfigurer<T> producerConfigurer,
-                                        String topicName,
+                                        String topicName, ReactiveProducerCache producerCache,
                                         ReactiveProducerAdapterFactory reactiveProducerAdapterFactory) {
         this.schema = schema;
         this.producerConfigurer = producerConfigurer;
         this.topicName = topicName;
+        this.producerCache = producerCache;
         this.reactiveProducerAdapterFactory = reactiveProducerAdapterFactory;
     }
 
@@ -34,7 +36,7 @@ class DefaultReactiveMessageSender<T>
                 producerConfigurer.configure(producerBuilder);
             }
             return producerBuilder;
-        });
+        }, producerCache);
     }
 
     @Override

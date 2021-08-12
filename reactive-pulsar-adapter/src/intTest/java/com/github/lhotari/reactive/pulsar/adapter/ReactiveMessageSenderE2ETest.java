@@ -24,8 +24,9 @@ public class ReactiveMessageSenderE2ETest {
                     .subscriptionName("sub")
                     .subscribe();
 
-            ReactiveMessageSender<String> messageSender = ReactivePulsarAdapter.create(pulsarClient)
-                    .producer()
+            ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
+
+            ReactiveMessageSender<String> messageSender = reactivePulsarClient
                     .messageSender(Schema.STRING)
                     .topic(topicName)
                     .create();
@@ -50,10 +51,11 @@ public class ReactiveMessageSenderE2ETest {
                     .subscriptionName("sub")
                     .subscribe();
 
-            ReactiveMessageSender<String> messageSender = ReactivePulsarAdapter.create(pulsarClient)
-                    .producer()
-                    .cache(producerCache)
+            ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
+
+            ReactiveMessageSender<String> messageSender = reactivePulsarClient
                     .messageSender(Schema.STRING)
+                    .cache(producerCache)
                     .topic(topicName)
                     .create();
             MessageId messageId = messageSender

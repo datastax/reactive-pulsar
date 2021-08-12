@@ -9,7 +9,7 @@ public interface ReactivePulsarAdapter {
     }
 
     static ReactivePulsarAdapter create(PulsarClient pulsarClient) {
-        return new DefaultReactivePulsarAdapter(() -> pulsarClient);
+        return create(() -> pulsarClient);
     }
 
     ReactiveProducerAdapterFactory producer();

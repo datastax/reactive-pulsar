@@ -6,7 +6,6 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
 
 public interface ReactiveProducerAdapterFactory {
-    ReactiveProducerAdapterFactory cache(ReactiveProducerCache producerCache);
-    <T> ReactiveProducerAdapter<T> create(Function<PulsarClient, ProducerBuilder<T>> producerBuilderFactory);
-    <T> ReactiveMessageSenderFactory<T> messageSender(Schema<T> schema);
+    <T> ReactiveProducerAdapter<T> create(Function<PulsarClient, ProducerBuilder<T>> producerBuilderFactory,
+                                          ReactiveProducerCache producerCache);
 }

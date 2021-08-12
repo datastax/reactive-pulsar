@@ -10,8 +10,8 @@ class DefaultReactiveMessageReaderFactory<T> implements ReactiveMessageReaderFac
     private StartAtSpec startAtSpec = StartAtSpec.ofEarliest();
     private EndOfStreamAction endOfStreamAction = EndOfStreamAction.COMPLETE;
 
-    public DefaultReactiveMessageReaderFactory(ReactiveReaderAdapterFactory reactiveReaderAdapterFactory,
-                                               Schema<T> schema) {
+    public DefaultReactiveMessageReaderFactory(Schema<T> schema,
+                                               ReactiveReaderAdapterFactory reactiveReaderAdapterFactory) {
         this.reactiveReaderAdapterFactory = reactiveReaderAdapterFactory;
         this.schema = schema;
     }

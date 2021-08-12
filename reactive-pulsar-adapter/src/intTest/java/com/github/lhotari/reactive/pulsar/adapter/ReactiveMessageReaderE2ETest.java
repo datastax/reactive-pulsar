@@ -25,12 +25,11 @@ public class ReactiveMessageReaderE2ETest {
                     .subscribe()
                     .close();
 
-            ReactivePulsarAdapter reactivePulsarAdapter = ReactivePulsarAdapter.create(pulsarClient);
+            ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
 
-            ReactiveMessageSender<String> messageSender = reactivePulsarAdapter
-                    .producer()
-                    .cache(producerCache)
+            ReactiveMessageSender<String> messageSender = reactivePulsarClient
                     .messageSender(Schema.STRING)
+                    .cache(producerCache)
                     .topic(topicName)
                     .create();
             messageSender.sendMessages(Flux.range(1, 100)
@@ -39,7 +38,7 @@ public class ReactiveMessageReaderE2ETest {
                     .blockLast();
 
             ReactiveMessageReader<String> messageReader =
-                    reactivePulsarAdapter.reader().messageReader(Schema.STRING)
+                    reactivePulsarClient.messageReader(Schema.STRING)
                             .topic(topicName)
                             .create();
             List<String> messages = messageReader.readMessages()

@@ -17,9 +17,4 @@ class DefaultReactiveConsumerAdapterFactory implements ReactiveConsumerAdapterFa
     public <T> ReactiveConsumerAdapter<T> create(Function<PulsarClient, ConsumerBuilder<T>> consumerBuilderFactory) {
         return new DefaultReactiveConsumerAdapter<T>(pulsarClientSupplier, consumerBuilderFactory);
     }
-
-    @Override
-    public <T> ReactiveConsumerPipelineBuilder<T> pipeline(Schema<T> schema) {
-        return new DefaultReactiveConsumerPipelineBuilder<T>(schema, this);
-    }
 }

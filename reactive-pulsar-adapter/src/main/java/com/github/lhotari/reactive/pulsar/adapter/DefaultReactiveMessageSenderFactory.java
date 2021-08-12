@@ -5,13 +5,20 @@ import org.apache.pulsar.client.api.Schema;
 class DefaultReactiveMessageSenderFactory<T> implements ReactiveMessageSenderFactory<T> {
     private final Schema<T> schema;
     private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
-    ProducerConfigurer<T> producerConfigurer;
-    String topicName;
+    private ProducerConfigurer<T> producerConfigurer;
+    private String topicName;
+    private ReactiveProducerCache producerCache;
 
     public DefaultReactiveMessageSenderFactory(Schema<T> schema,
                                                ReactiveProducerAdapterFactory reactiveProducerAdapterFactory) {
         this.schema = schema;
         this.reactiveProducerAdapterFactory = reactiveProducerAdapterFactory;
+    }
+
+    @Override
+    public ReactiveMessageSenderFactory<T> cache(ReactiveProducerCache producerCache) {
+        this.producerCache = producerCache;
+        return this;
     }
 
     @Override
@@ -28,6 +35,7 @@ class DefaultReactiveMessageSenderFactory<T> implements ReactiveMessageSenderFac
 
     @Override
     public ReactiveMessageSender<T> create() {
-        return new DefaultReactiveMessageSender<>(schema, producerConfigurer, topicName, reactiveProducerAdapterFactory);
+        return new DefaultReactiveMessageSender<>(schema, producerConfigurer, topicName, producerCache,
+                reactiveProducerAdapterFactory);
     }
 }

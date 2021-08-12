@@ -26,10 +26,9 @@ public class ReactiveConsumerE2ETest {
                     .subscribe()
                     .close();
 
-            ReactivePulsarAdapter reactivePulsarAdapter = ReactivePulsarAdapter.create(pulsarClient);
+            ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
 
-            ReactiveMessageSender<String> messageSender = reactivePulsarAdapter
-                    .producer()
+            ReactiveMessageSender<String> messageSender = reactivePulsarClient
                     .messageSender(Schema.STRING)
                     .topic(topicName)
                     .create();
@@ -41,7 +40,7 @@ public class ReactiveConsumerE2ETest {
             List<String> messages = Collections.synchronizedList(new ArrayList<>());
             CountDownLatch latch = new CountDownLatch(100);
             try (ReactiveConsumerPipeline reactiveConsumerPipeline =
-                         reactivePulsarAdapter.consumer().pipeline(Schema.STRING)
+                         reactivePulsarClient.pipeline(Schema.STRING)
                                  .consumerConfigurer(consumerBuilder ->
                                          consumerBuilder.subscriptionName("sub")
                                                  .topic(topicName))

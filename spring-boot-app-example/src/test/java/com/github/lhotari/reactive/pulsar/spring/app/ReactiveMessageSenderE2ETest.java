@@ -5,6 +5,7 @@ import com.github.lhotari.reactive.pulsar.adapter.MessageSpec;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSender;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarAdapter;
+import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.pulsar.client.api.Consumer;
@@ -44,8 +45,9 @@ public class ReactiveMessageSenderE2ETest {
                 .subscriptionName("sub")
                 .subscribe();
 
-        ReactiveMessageSender<String> messageSender = reactivePulsarAdapter
-                .producer()
+        ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
+
+        ReactiveMessageSender<String> messageSender = reactivePulsarClient
                 .messageSender(Schema.STRING)
                 .topic(topicName)
                 .create();
@@ -67,10 +69,11 @@ public class ReactiveMessageSenderE2ETest {
                 .subscriptionName("sub")
                 .subscribe();
 
-        ReactiveMessageSender<String> messageSender = reactivePulsarAdapter
-                .producer()
-                .cache(reactiveProducerCache)
+        ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
+
+        ReactiveMessageSender<String> messageSender = reactivePulsarClient
                 .messageSender(Schema.STRING)
+                .cache(reactiveProducerCache)
                 .topic(topicName)
                 .create();
         MessageId messageId = messageSender
