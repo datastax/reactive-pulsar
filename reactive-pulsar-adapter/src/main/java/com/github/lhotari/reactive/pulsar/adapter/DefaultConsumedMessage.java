@@ -7,12 +7,12 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-public class DefaultConsumedMessage<T> implements ConsumedMessage<T> {
+class DefaultConsumedMessage<T> implements ConsumedMessage<T> {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultConsumedMessage.class);
     private final Message<T> message;
     private final Consumer<T> consumer;
 
-    public DefaultConsumedMessage(Message<T> message, Consumer<T> consumer) {
+    DefaultConsumedMessage(Message<T> message, Consumer<T> consumer) {
         this.message = message;
         this.consumer = consumer;
     }

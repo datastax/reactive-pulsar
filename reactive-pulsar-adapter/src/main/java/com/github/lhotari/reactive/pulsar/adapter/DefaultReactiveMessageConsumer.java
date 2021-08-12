@@ -7,7 +7,7 @@ import org.apache.pulsar.client.api.Schema;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class DefaultReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
+class DefaultReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
     private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
     private final Schema<T> schema;
     private final ConsumerConfigurer<T> consumerConfigurer;

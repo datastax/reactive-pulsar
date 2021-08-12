@@ -2,7 +2,7 @@ package com.github.lhotari.reactive.pulsar.adapter;
 
 import org.apache.pulsar.client.api.Schema;
 
-public class DefaultReactiveMessageConsumerFactory<T> implements ReactiveMessageConsumerFactory<T> {
+class DefaultReactiveMessageConsumerFactory<T> implements ReactiveMessageConsumerFactory<T> {
     private final Schema<T> schema;
     private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
     private ConsumerConfigurer<T> readerConfigurer;
