@@ -22,5 +22,5 @@ public interface ReactiveMessageHandlerBuilder<T> {
 
     ReactiveMessageHandlerBuilder<T> transformPipeline(Function<Mono<Void>, Mono<Void>> transformer);
 
-    ReactiveMessageHandler build();
+    ReactiveMessageHandler start();
 }

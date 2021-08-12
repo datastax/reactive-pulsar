@@ -70,7 +70,7 @@ class DefaultReactiveMessageHandlerBuilder<T> implements ReactiveMessageHandlerB
     }
 
     @Override
-    public ReactiveMessageHandler build() {
+    public ReactiveMessageHandler start() {
         return new DefaultReactiveMessageHandler<T>(this);
     }
 

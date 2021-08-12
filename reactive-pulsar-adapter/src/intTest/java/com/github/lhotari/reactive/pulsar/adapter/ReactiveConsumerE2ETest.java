@@ -48,7 +48,7 @@ public class ReactiveConsumerE2ETest {
                                      messages.add(message.getValue());
                                      latch.countDown();
                                  }))
-                                 .build()) {
+                                 .start()) {
                 latch.await(5, TimeUnit.SECONDS);
                 assertThat(messages)
                         .isEqualTo(Flux.range(1, 100).map(Object::toString).collectList().block());
