@@ -20,5 +20,7 @@ public interface ReactiveMessageHandlerBuilder<T> {
 
     ReactiveMessageHandlerBuilder<T> handlingTimeout(Duration handlingTimeout);
 
+    ReactiveMessageHandlerBuilder<T> transformPipeline(Function<Mono<Void>, Mono<Void>> transformer);
+
     ReactiveMessageHandler build();
 }

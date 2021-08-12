@@ -24,6 +24,7 @@ class DefaultReactiveMessageHandler<T>
     private final Duration handlingTimeout;
     private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
     private final Disposable killSwitch;
+    private final Function<Mono<Void>, Mono<Void>> transformer;
 
     public DefaultReactiveMessageHandler(DefaultReactiveMessageHandlerBuilder<T> builder) {
         this.schema = builder.getSchema();
@@ -34,6 +35,7 @@ class DefaultReactiveMessageHandler<T>
         this.pipelineRetrySpec = builder.getPipelineRetrySpec();
         this.handlingTimeout = builder.getHandlingTimeout();
         this.reactiveConsumerAdapterFactory = builder.getReactiveConsumerAdapterFactory();
+        this.transformer = builder.getTransformer() != null ? builder.getTransformer() : Function.identity();
         killSwitch = start();
     }
 
@@ -70,6 +72,7 @@ class DefaultReactiveMessageHandler<T>
                                 .repeat()
                                 .then()
                                 .transform(this::decorateConsumeLoop))
+                .transform(transformer)
                 .transform(this::decoratePipeline);
     }
 

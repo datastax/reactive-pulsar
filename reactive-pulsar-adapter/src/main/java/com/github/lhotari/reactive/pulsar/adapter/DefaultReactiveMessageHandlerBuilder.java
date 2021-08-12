@@ -19,6 +19,7 @@ class DefaultReactiveMessageHandlerBuilder<T> implements ReactiveMessageHandlerB
     private Retry pipelineRetrySpec = Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(5))
             .maxBackoff(Duration.ofMinutes(1));
     private Duration handlingTimeout = Duration.ofSeconds(120);
+    private Function<Mono<Void>, Mono<Void>> transformer;
 
     public DefaultReactiveMessageHandlerBuilder(Schema<T> schema,
                                                 ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory) {
@@ -63,6 +64,12 @@ class DefaultReactiveMessageHandlerBuilder<T> implements ReactiveMessageHandlerB
     }
 
     @Override
+    public ReactiveMessageHandlerBuilder<T> transformPipeline(Function<Mono<Void>, Mono<Void>> transformer) {
+        this.transformer = transformer;
+        return this;
+    }
+
+    @Override
     public ReactiveMessageHandler build() {
         return new DefaultReactiveMessageHandler<T>(this);
     }
@@ -95,6 +102,9 @@ class DefaultReactiveMessageHandlerBuilder<T> implements ReactiveMessageHandlerB
         return handlingTimeout;
     }
 
+    public Function<Mono<Void>, Mono<Void>> getTransformer() {
+        return transformer;
+    }
     public ReactiveConsumerAdapterFactory getReactiveConsumerAdapterFactory() {
         return reactiveConsumerAdapterFactory;
     }
