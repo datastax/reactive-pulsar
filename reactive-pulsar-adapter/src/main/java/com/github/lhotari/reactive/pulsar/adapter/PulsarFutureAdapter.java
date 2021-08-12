@@ -29,8 +29,7 @@ public class PulsarFutureAdapter {
 
     <T> Mono<? extends T> toMono(Supplier<? extends CompletableFuture<T>> futureSupplier) {
         return Mono.fromFuture(() -> createFuture(futureSupplier))
-                .doOnCancel(this::doOnCancel)
-                .doFinally(this::doFinally);
+                .doOnCancel(this::doOnCancel);
     }
 
     private <T> CompletableFuture<T> createFuture(Supplier<? extends CompletableFuture<T>> futureSupplier) {
@@ -49,16 +48,10 @@ public class PulsarFutureAdapter {
 
     private void doOnCancel() {
         cancelled = true;
-    }
-
-    private void doFinally(SignalType signal) {
-        if (signal == SignalType.CANCEL) {
-            CompletableFuture<?> future = futureReference;
-            if (future != null) {
-                future.cancel(false);
-            }
+        CompletableFuture<?> future = futureReference;
+        if (future != null) {
+            future.cancel(false);
         }
-        futureReference = null;
     }
 
     private static void handleException(boolean cancelled, Throwable e) {
