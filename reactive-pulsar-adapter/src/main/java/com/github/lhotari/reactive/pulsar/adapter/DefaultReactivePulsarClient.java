@@ -24,4 +24,10 @@ class DefaultReactivePulsarClient implements ReactivePulsarClient {
         return new DefaultReactiveMessageHandlerBuilder<>(schema, reactivePulsarAdapter.consumer());
     }
 
+    @Override
+    public <T> ReactiveMessageConsumerFactory<T> messageConsumer(Schema<T> schema) {
+        return new DefaultReactiveMessageConsumerFactory<>(schema, reactivePulsarAdapter.consumer());
+    }
+
+
 }
