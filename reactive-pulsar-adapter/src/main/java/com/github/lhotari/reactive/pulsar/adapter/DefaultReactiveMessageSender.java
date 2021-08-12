@@ -57,7 +57,7 @@ class DefaultReactiveMessageSender<T>
     public Flux<MessageId> sendMessages(Flux<MessageSpec<T>> messageSpecs) {
         return createReactiveProducerAdapter()
                 .usingProducerMany(producer ->
-                        messageSpecs.concatMap(messageConfigurer ->
-                                createMessageMono(messageConfigurer, producer)));
+                        messageSpecs.concatMap(messageSpec ->
+                                createMessageMono(messageSpec, producer)));
     }
 }
