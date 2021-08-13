@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.github.lhotari.reactive.pulsar.adapter.MessageSpec;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSender;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
-import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarAdapter;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +31,7 @@ public class ReactiveMessageSenderE2ETest {
     PulsarClient pulsarClient;
 
     @Autowired
-    ReactivePulsarAdapter reactivePulsarAdapter;
+    ReactivePulsarClient reactivePulsarClient;
 
     @Autowired
     ReactiveProducerCache reactiveProducerCache;
@@ -44,8 +43,6 @@ public class ReactiveMessageSenderE2ETest {
                 .topic(topicName)
                 .subscriptionName("sub")
                 .subscribe();
-
-        ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
 
         ReactiveMessageSender<String> messageSender = reactivePulsarClient
                 .messageSender(Schema.STRING)
@@ -68,8 +65,6 @@ public class ReactiveMessageSenderE2ETest {
                 .topic(topicName)
                 .subscriptionName("sub")
                 .subscribe();
-
-        ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
 
         ReactiveMessageSender<String> messageSender = reactivePulsarClient
                 .messageSender(Schema.STRING)

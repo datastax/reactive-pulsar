@@ -3,6 +3,7 @@ package com.github.lhotari.reactive.pulsar.spring;
 
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarAdapter;
+import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;
 import com.github.lhotari.reactive.pulsar.producercache.CaffeineReactiveProducerCache;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.springframework.beans.factory.ObjectProvider;
@@ -17,6 +18,12 @@ public class PulsarReactiveAdapterAutoConfiguration {
     @ConditionalOnMissingBean
     ReactivePulsarAdapter reactivePulsarAdapter(ObjectProvider<PulsarClient> pulsarClientObjectProvider) {
         return ReactivePulsarAdapter.create(pulsarClientObjectProvider::getObject);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    ReactivePulsarClient reactivePulsarClient(ReactivePulsarAdapter reactivePulsarAdapter) {
+        return ReactivePulsarClient.create(reactivePulsarAdapter);
     }
 
     @Bean
