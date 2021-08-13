@@ -7,5 +7,7 @@ public interface ReactiveMessageSenderFactory<T> {
 
     ReactiveMessageSenderFactory<T> topic(String topicName);
 
+    ReactiveMessageSenderFactory<T> maxInflight(int maxInflight);
+
     ReactiveMessageSender<T> create();
 }

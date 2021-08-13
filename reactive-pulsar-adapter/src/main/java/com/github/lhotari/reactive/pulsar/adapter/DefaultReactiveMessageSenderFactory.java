@@ -8,6 +8,7 @@ class DefaultReactiveMessageSenderFactory<T> implements ReactiveMessageSenderFac
     private ProducerConfigurer<T> producerConfigurer;
     private String topicName;
     private ReactiveProducerCache producerCache;
+    private int maxInflight = 100;
 
     public DefaultReactiveMessageSenderFactory(Schema<T> schema,
                                                ReactiveProducerAdapterFactory reactiveProducerAdapterFactory) {
@@ -34,8 +35,14 @@ class DefaultReactiveMessageSenderFactory<T> implements ReactiveMessageSenderFac
     }
 
     @Override
+    public ReactiveMessageSenderFactory<T> maxInflight(int maxInflight) {
+        this.maxInflight = maxInflight;
+        return this;
+    }
+
+    @Override
     public ReactiveMessageSender<T> create() {
-        return new DefaultReactiveMessageSender<>(schema, producerConfigurer, topicName, producerCache,
+        return new DefaultReactiveMessageSender<>(schema, producerConfigurer, topicName, maxInflight, producerCache,
                 reactiveProducerAdapterFactory);
     }
 }

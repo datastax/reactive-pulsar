@@ -13,15 +13,17 @@ class DefaultReactiveMessageSender<T>
     private final Schema<T> schema;
     private final ProducerConfigurer<T> producerConfigurer;
     private final String topicName;
+    private final int maxInflight;
     private final ReactiveProducerCache producerCache;
     private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
 
     public DefaultReactiveMessageSender(Schema<T> schema, ProducerConfigurer<T> producerConfigurer,
-                                        String topicName, ReactiveProducerCache producerCache,
+                                        String topicName, int maxInflight, ReactiveProducerCache producerCache,
                                         ReactiveProducerAdapterFactory reactiveProducerAdapterFactory) {
         this.schema = schema;
         this.producerConfigurer = producerConfigurer;
         this.topicName = topicName;
+        this.maxInflight = maxInflight;
         this.producerCache = producerCache;
         this.reactiveProducerAdapterFactory = reactiveProducerAdapterFactory;
     }
@@ -46,7 +48,7 @@ class DefaultReactiveMessageSender<T>
     }
 
     private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer) {
-        return Mono.fromFuture(() -> {
+        return PulsarFutureAdapter.adaptPulsarFuture(() -> {
             TypedMessageBuilder<T> typedMessageBuilder = producer.newMessage();
             messageSpec.configure(typedMessageBuilder);
             return typedMessageBuilder.sendAsync();
@@ -57,7 +59,7 @@ class DefaultReactiveMessageSender<T>
     public Flux<MessageId> sendMessages(Flux<MessageSpec<T>> messageSpecs) {
         return createReactiveProducerAdapter()
                 .usingProducerMany(producer ->
-                        messageSpecs.concatMap(messageSpec ->
-                                createMessageMono(messageSpec, producer)));
+                        messageSpecs.flatMapSequential(messageSpec -> createMessageMono(messageSpec, producer),
+                                maxInflight));
     }
 }
