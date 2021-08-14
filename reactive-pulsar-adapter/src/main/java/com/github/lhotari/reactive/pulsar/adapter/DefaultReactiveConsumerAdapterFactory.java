@@ -4,7 +4,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.ConsumerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
-import org.apache.pulsar.client.api.Schema;
 
 class DefaultReactiveConsumerAdapterFactory implements ReactiveConsumerAdapterFactory {
     private final Supplier<PulsarClient> pulsarClientSupplier;

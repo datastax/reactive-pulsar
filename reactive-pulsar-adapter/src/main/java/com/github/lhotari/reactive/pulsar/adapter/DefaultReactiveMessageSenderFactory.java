@@ -1,19 +1,22 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
+import java.util.function.Supplier;
 import org.apache.pulsar.client.api.Schema;
+import reactor.core.scheduler.Schedulers;
 
 class DefaultReactiveMessageSenderFactory<T> implements ReactiveMessageSenderFactory<T> {
     private final Schema<T> schema;
-    private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
+    private final Supplier<ReactiveProducerAdapterFactory> reactiveProducerAdapterFactorySupplier;
     private ProducerConfigurer<T> producerConfigurer;
     private String topicName;
     private ReactiveProducerCache producerCache;
     private int maxInflight = 100;
+    private Supplier<PublisherTransformer> producerActionTransformer = PublisherTransformer::identity;
 
     public DefaultReactiveMessageSenderFactory(Schema<T> schema,
-                                               ReactiveProducerAdapterFactory reactiveProducerAdapterFactory) {
+                                               Supplier<ReactiveProducerAdapterFactory> reactiveProducerAdapterFactorySupplier) {
         this.schema = schema;
-        this.reactiveProducerAdapterFactory = reactiveProducerAdapterFactory;
+        this.reactiveProducerAdapterFactorySupplier = reactiveProducerAdapterFactorySupplier;
     }
 
     @Override
@@ -37,12 +40,17 @@ class DefaultReactiveMessageSenderFactory<T> implements ReactiveMessageSenderFac
     @Override
     public ReactiveMessageSenderFactory<T> maxInflight(int maxInflight) {
         this.maxInflight = maxInflight;
+        producerActionTransformer =
+                () -> new InflightLimiter(maxInflight, Math.max(maxInflight / 2, 1), Schedulers.single());
         return this;
     }
 
     @Override
     public ReactiveMessageSender<T> create() {
-        return new DefaultReactiveMessageSender<>(schema, producerConfigurer, topicName, maxInflight, producerCache,
+        ReactiveProducerAdapterFactory reactiveProducerAdapterFactory = reactiveProducerAdapterFactorySupplier.get();
+        reactiveProducerAdapterFactory.cache(producerCache);
+        reactiveProducerAdapterFactory.producerActionTransformer(producerActionTransformer);
+        return new DefaultReactiveMessageSender<>(schema, producerConfigurer, topicName, maxInflight,
                 reactiveProducerAdapterFactory);
     }
 }

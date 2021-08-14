@@ -14,17 +14,15 @@ class DefaultReactiveMessageSender<T>
     private final ProducerConfigurer<T> producerConfigurer;
     private final String topicName;
     private final int maxInflight;
-    private final ReactiveProducerCache producerCache;
     private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
 
     public DefaultReactiveMessageSender(Schema<T> schema, ProducerConfigurer<T> producerConfigurer,
-                                        String topicName, int maxInflight, ReactiveProducerCache producerCache,
+                                        String topicName, int maxInflight,
                                         ReactiveProducerAdapterFactory reactiveProducerAdapterFactory) {
         this.schema = schema;
         this.producerConfigurer = producerConfigurer;
         this.topicName = topicName;
         this.maxInflight = maxInflight;
-        this.producerCache = producerCache;
         this.reactiveProducerAdapterFactory = reactiveProducerAdapterFactory;
     }
 
@@ -38,7 +36,7 @@ class DefaultReactiveMessageSender<T>
                 producerConfigurer.configure(producerBuilder);
             }
             return producerBuilder;
-        }, producerCache);
+        });
     }
 
     @Override

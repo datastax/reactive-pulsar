@@ -6,13 +6,16 @@ import com.github.benmanes.caffeine.cache.CaffeineSpec;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import com.github.lhotari.reactive.pulsar.adapter.ProducerCacheKey;
+import com.github.lhotari.reactive.pulsar.adapter.PublisherTransformer;
 import com.github.lhotari.reactive.pulsar.adapter.PulsarFutureAdapter;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import org.apache.pulsar.client.api.Producer;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -21,7 +24,7 @@ import reactor.core.scheduler.Schedulers;
 
 public class CaffeineReactiveProducerCache implements ReactiveProducerCache, AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(CaffeineReactiveProducerCache.class);
-    final AsyncCache<ProducerCacheKey, CaffeineReactiveProducerCache.ProducerCacheEntry<?>> cache;
+    final AsyncCache<ProducerCacheKey, CaffeineReactiveProducerCache.ProducerCacheEntry> cache;
 
     public CaffeineReactiveProducerCache() {
         this(Caffeine.newBuilder()
@@ -57,11 +60,17 @@ public class CaffeineReactiveProducerCache implements ReactiveProducerCache, Aut
                 });
     }
 
-    private <T> Mono<CaffeineReactiveProducerCache.ProducerCacheEntry> getProducerCacheEntry(ProducerCacheKey cacheKey,
-                                                                                             Mono<Producer<T>> producerMono) {
+    private <T> Mono<CaffeineReactiveProducerCache.ProducerCacheEntry> getProducerCacheEntry(
+            ProducerCacheKey cacheKey,
+            Mono<Producer<T>> producerMono,
+            Supplier<PublisherTransformer> producerActionTransformer) {
         return PulsarFutureAdapter.adaptPulsarFuture(() ->
                         this.cache.get(cacheKey,
-                                (__, ___) -> producerMono.<ProducerCacheEntry<?>>map(ProducerCacheEntry::new)
+                                (__, ___) -> producerMono.<ProducerCacheEntry>map(
+                                                producer -> new ProducerCacheEntry(producer,
+                                                        producerActionTransformer != null ?
+                                                                producerActionTransformer
+                                                                : null))
                                         .toFuture()))
                 .flatMap(producerCacheEntry -> producerCacheEntry.recreateIfClosed(producerMono));
     }
@@ -70,10 +79,13 @@ public class CaffeineReactiveProducerCache implements ReactiveProducerCache, Aut
         this.cache.synchronous().invalidateAll();
     }
 
+    @Override
     public <T, R> Mono<R> usingCachedProducer(ProducerCacheKey cacheKey, Mono<Producer<T>> producerMono,
+                                              Supplier<PublisherTransformer> producerActionTransformer,
                                               Function<Producer<T>, Mono<R>> usingProducerAction) {
-        return Mono.usingWhen(this.leaseCacheEntry(cacheKey, producerMono),
-                producerCacheEntry -> usingProducerAction.apply(producerCacheEntry.getProducer()),
+        return Mono.usingWhen(this.leaseCacheEntry(cacheKey, producerMono, producerActionTransformer),
+                producerCacheEntry -> usingProducerAction.apply(producerCacheEntry.getProducer())
+                        .as(producerCacheEntry::decorateProducerAction),
                 producerCacheEntry -> this.returnCacheEntry(producerCacheEntry));
     }
 
@@ -82,27 +94,35 @@ public class CaffeineReactiveProducerCache implements ReactiveProducerCache, Aut
     }
 
     private <T> Mono<CaffeineReactiveProducerCache.ProducerCacheEntry> leaseCacheEntry(ProducerCacheKey cacheKey,
-                                                                                       Mono<Producer<T>> producerMono) {
-        return this.getProducerCacheEntry(cacheKey, producerMono)
+                                                                                       Mono<Producer<T>> producerMono,
+                                                                                       Supplier<PublisherTransformer> producerActionTransformer) {
+        return this.getProducerCacheEntry(cacheKey, producerMono, producerActionTransformer)
                 .doOnNext(CaffeineReactiveProducerCache.ProducerCacheEntry::activateLease);
     }
 
+    @Override
     public <T, R> Flux<R> usingCachedProducerMany(ProducerCacheKey cacheKey, Mono<Producer<T>> producerMono,
+                                                  Supplier<PublisherTransformer> producerActionTransformer,
                                                   Function<Producer<T>, Flux<R>> usingProducerAction) {
-        return Flux.usingWhen(this.leaseCacheEntry(cacheKey, producerMono),
-                producerCacheEntry -> usingProducerAction.apply(producerCacheEntry.getProducer()),
+        return Flux.usingWhen(this.leaseCacheEntry(cacheKey, producerMono, producerActionTransformer),
+                producerCacheEntry -> usingProducerAction.apply(producerCacheEntry.getProducer())
+                        .as(producerCacheEntry::decorateProducerAction),
                 producerCacheEntry -> this.returnCacheEntry(producerCacheEntry));
     }
 
-    static class ProducerCacheEntry<T> {
+    static class ProducerCacheEntry {
         private final AtomicReference<Producer<?>> producer = new AtomicReference();
         private final AtomicReference<Mono<? extends Producer<?>>> producerCreator = new AtomicReference();
         private final AtomicInteger activeLeases = new AtomicInteger(0);
+        private final PublisherTransformer producerActionTransformer;
         private volatile boolean removed;
 
-        ProducerCacheEntry(Producer<?> producer) {
+        public ProducerCacheEntry(Producer<?> producer,
+                                  Supplier<PublisherTransformer> producerActionTransformer) {
             this.producer.set(producer);
             this.producerCreator.set(Mono.fromSupplier(this.producer::get));
+            this.producerActionTransformer = producerActionTransformer != null ? producerActionTransformer.get() :
+                    PublisherTransformer.identity();
         }
 
         void activateLease() {
@@ -160,6 +180,7 @@ public class CaffeineReactiveProducerCache implements ReactiveProducerCache, Aut
             if (activeLeases.get() == 0) {
                 closeProducer();
             }
+            producerActionTransformer.dispose();
         }
 
         private void closeProducer() {
@@ -168,6 +189,14 @@ public class CaffeineReactiveProducerCache implements ReactiveProducerCache, Aut
                 log.info("Closed producer {} for topic {}", p.getProducerName(), p.getTopic());
                 flushAndCloseProducerAsync(p);
             }
+        }
+
+        <R> Publisher<? extends R> decorateProducerAction(Flux<R> source) {
+            return producerActionTransformer.transform(source);
+        }
+
+        <R> Mono<? extends R> decorateProducerAction(Mono<R> source) {
+            return Mono.from(producerActionTransformer.transform(source));
         }
     }
 }

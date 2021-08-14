@@ -29,6 +29,7 @@ public class ReactiveMessageSenderE2ETest {
             ReactiveMessageSender<String> messageSender = reactivePulsarClient
                     .messageSender(Schema.STRING)
                     .topic(topicName)
+                    .maxInflight(1)
                     .create();
             MessageId messageId = messageSender
                     .sendMessage(Mono.just(MessageSpec.<String>builder().value("Hello world!").build()))
@@ -56,6 +57,7 @@ public class ReactiveMessageSenderE2ETest {
             ReactiveMessageSender<String> messageSender = reactivePulsarClient
                     .messageSender(Schema.STRING)
                     .cache(producerCache)
+                    .maxInflight(1)
                     .topic(topicName)
                     .create();
             MessageId messageId = messageSender

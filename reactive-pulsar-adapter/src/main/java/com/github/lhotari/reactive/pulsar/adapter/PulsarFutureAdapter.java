@@ -4,7 +4,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.PulsarClientException;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SignalType;
 
 /**
  * Stateful adapter from CompletableFuture to Mono which keeps a reference to

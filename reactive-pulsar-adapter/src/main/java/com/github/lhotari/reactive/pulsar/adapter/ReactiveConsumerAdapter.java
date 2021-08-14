@@ -1,9 +1,7 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.apache.pulsar.client.api.Consumer;
-import org.apache.pulsar.client.api.Message;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

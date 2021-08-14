@@ -7,6 +7,7 @@ import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.impl.ProducerBuilderImpl;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -16,13 +17,16 @@ class DefaultReactiveProducerAdapter<T> implements ReactiveProducerAdapter<T> {
     private final ReactiveProducerCache producerCache;
     private final Function<PulsarClient, ProducerBuilder<T>> producerBuilderFactory;
     private final Supplier<PulsarClient> pulsarClientSupplier;
+    private Supplier<PublisherTransformer> producerActionTransformer;
 
     public DefaultReactiveProducerAdapter(ReactiveProducerCache producerCache,
                                           Function<PulsarClient, ProducerBuilder<T>> producerBuilderFactory,
-                                          Supplier<PulsarClient> pulsarClientSupplier) {
+                                          Supplier<PulsarClient> pulsarClientSupplier,
+                                          Supplier<PublisherTransformer> producerActionTransformer) {
         this.producerCache = producerCache;
         this.producerBuilderFactory = producerBuilderFactory;
         this.pulsarClientSupplier = pulsarClientSupplier;
+        this.producerActionTransformer = producerActionTransformer;
     }
 
     private Mono<Producer<T>> createProducerMono() {
@@ -55,7 +59,10 @@ class DefaultReactiveProducerAdapter<T> implements ReactiveProducerAdapter<T> {
 
     private <R> Mono<R> usingUncachedProducer(Function<Producer<T>, Mono<R>> usingProducerAction) {
         return Mono.usingWhen(createProducerMono(),
-                usingProducerAction,
+                producer -> Mono.using(() -> producerActionTransformer.get(),
+                        transformer -> usingProducerAction.apply(producer)
+                                .as(mono -> Mono.from(transformer.transform(mono))),
+                        Disposable::dispose),
                 this::closeProducer);
     }
 
@@ -63,7 +70,8 @@ class DefaultReactiveProducerAdapter<T> implements ReactiveProducerAdapter<T> {
         return createCachedProducerKeyAndMono().flatMap(keyAndProducerMono -> {
             ProducerCacheKey cacheKey = keyAndProducerMono.getT1();
             Mono<Producer<T>> producerMono = keyAndProducerMono.getT2();
-            return producerCache.usingCachedProducer(cacheKey, producerMono, usingProducerAction);
+            return producerCache.usingCachedProducer(cacheKey, producerMono, producerActionTransformer,
+                    usingProducerAction);
         });
     }
 
@@ -78,7 +86,9 @@ class DefaultReactiveProducerAdapter<T> implements ReactiveProducerAdapter<T> {
 
     private <R> Flux<R> usingUncachedProducerMany(Function<Producer<T>, Flux<R>> usingProducerAction) {
         return Flux.usingWhen(createProducerMono(),
-                usingProducerAction,
+                producer -> Flux.using(() -> producerActionTransformer.get(),
+                        transformer -> usingProducerAction.apply(producer).as(transformer::transform),
+                        Disposable::dispose),
                 this::closeProducer);
     }
 
@@ -86,7 +96,8 @@ class DefaultReactiveProducerAdapter<T> implements ReactiveProducerAdapter<T> {
         return createCachedProducerKeyAndMono().flatMapMany(keyAndProducerMono -> {
             ProducerCacheKey cacheKey = keyAndProducerMono.getT1();
             Mono<Producer<T>> producerMono = keyAndProducerMono.getT2();
-            return producerCache.usingCachedProducerMany(cacheKey, producerMono, usingProducerAction);
+            return producerCache.usingCachedProducerMany(cacheKey, producerMono, producerActionTransformer,
+                    usingProducerAction);
         });
     }
 }
