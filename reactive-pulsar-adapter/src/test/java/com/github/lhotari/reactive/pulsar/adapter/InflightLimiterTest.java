@@ -49,7 +49,7 @@ class InflightLimiterTest {
             }
             assertThat(Math.abs(previousValue - value))
                     .as("value %d at index %d", values.get(i), i)
-                    .isLessThanOrEqualTo(32);
+                    .isLessThanOrEqualTo(48);
             previousValue = value;
         }
     }
