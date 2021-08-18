@@ -32,7 +32,7 @@ public class ReactiveMessageSenderE2ETest {
                     .maxInflight(1)
                     .create();
             MessageId messageId = messageSender
-                    .sendMessage(Mono.just(MessageSpec.<String>builder().value("Hello world!").build()))
+                    .sendMessage(Mono.just(MessageSpec.builder("Hello world!").build()))
                     .block();
             assertThat(messageId).isNotNull();
 
@@ -61,7 +61,7 @@ public class ReactiveMessageSenderE2ETest {
                     .topic(topicName)
                     .create();
             MessageId messageId = messageSender
-                    .sendMessage(Mono.just(MessageSpec.<String>builder().value("Hello world!").build()))
+                    .sendMessage(Mono.just(MessageSpec.builder("Hello world!").build()))
                     .block();
             assertThat(messageId).isNotNull();
 

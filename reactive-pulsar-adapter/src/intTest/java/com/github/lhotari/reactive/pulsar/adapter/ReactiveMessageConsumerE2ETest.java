@@ -36,7 +36,7 @@ public class ReactiveMessageConsumerE2ETest {
                     .create();
             messageSender.sendMessages(Flux.range(1, 100)
                             .map(Object::toString)
-                            .map(string -> MessageSpec.<String>builder().value(string).build()))
+                            .map(string -> MessageSpec.builder(string).build()))
                     .blockLast();
 
             ReactiveMessageConsumer<String> messageConsumer =

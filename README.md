@@ -49,7 +49,7 @@ ReactiveMessageSender<String> messageSender = reactivePulsarClient
         .maxInflight(100)
         .create();
 Mono<MessageId> messageId = messageSender
-        .sendMessage(Mono.just(MessageSpec.<String>builder().value("Hello world!").build()));
+        .sendMessage(Mono.just(MessageSpec.builder("Hello world!").build()));
 // for demonstration
 messageId.subscribe(System.out::println);
 ```
@@ -91,7 +91,7 @@ ReactiveMessageSender<String> messageSender = reactivePulsarClient
         .maxInflight(100)
         .create();
 Mono<MessageId> messageId = messageSender
-        .sendMessage(Mono.just(MessageSpec.<String>builder().value("Hello world!").build()));
+        .sendMessage(Mono.just(MessageSpec.builder("Hello world!").build()));
 // for demonstration
 messageId.subscribe(System.out::println);
 ```
