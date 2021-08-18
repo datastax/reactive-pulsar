@@ -44,11 +44,9 @@ public class ReactiveMessageConsumerE2ETest {
                             .topic(topicName)
                             .consumerConfigurer(consumerBuilder -> consumerBuilder.subscriptionName("sub"))
                             .create();
-            List<String> messages = messageConsumer.consumeMessages()
-                    .map(consumedMessage -> {
-                        consumedMessage.acknowledge();
-                        return consumedMessage.getMessage().getValue();
-                    })
+            List<String> messages = messageConsumer.consumeMessages(messageFlux ->
+                            messageFlux.map(message -> MessageResult.acknowledge(message.getMessageId(),
+                                    message.getValue())))
                     .timeout(Duration.ofSeconds(2), Mono.empty())
                     .collectList().block();
 
@@ -56,7 +54,9 @@ public class ReactiveMessageConsumerE2ETest {
                     .isEqualTo(Flux.range(1, 100).map(Object::toString).collectList().block());
 
             // should have acknowledged all messages
-            List<ConsumedMessage<String>> remainingMessages = messageConsumer.consumeMessages()
+            List<Message<String>> remainingMessages = messageConsumer
+                    .consumeMessages(messageFlux -> messageFlux.map(
+                            message -> MessageResult.acknowledge(message.getMessageId(), message)))
                     .timeout(Duration.ofSeconds(2), Mono.empty())
                     .collectList()
                     .block();

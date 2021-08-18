@@ -1,12 +1,14 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
+import java.util.function.Function;
+import org.apache.pulsar.client.api.Message;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ReactiveMessageConsumer<T> {
-    Mono<ConsumedMessage<T>> consumeMessage();
+    <R> Mono<R> consumeMessage(Function<Mono<Message<T>>, Mono<MessageResult<R>>> messageHandler);
 
-    Flux<ConsumedMessage<T>> consumeMessages();
+    <R> Flux<R> consumeMessages(Function<Flux<Message<T>>, Flux<MessageResult<R>>> messageHandler);
 
     /**
      * Creates the Pulsar Consumer and immediately closes it.
