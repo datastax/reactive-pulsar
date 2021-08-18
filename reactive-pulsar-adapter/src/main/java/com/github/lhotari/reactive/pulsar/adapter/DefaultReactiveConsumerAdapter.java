@@ -6,10 +6,14 @@ import java.util.function.Supplier;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.ConsumerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 class DefaultReactiveConsumerAdapter<T> implements ReactiveConsumerAdapter<T> {
+    private Logger LOG = LoggerFactory.getLogger(DefaultReactiveConsumerAdapter.class);
     private final Supplier<PulsarClient> pulsarClientSupplier;
     private final Function<PulsarClient, ConsumerBuilder<T>> consumerBuilderFactory;
 
@@ -24,7 +28,10 @@ class DefaultReactiveConsumerAdapter<T> implements ReactiveConsumerAdapter<T> {
     }
 
     private Mono<Void> closeConsumer(Consumer<?> consumer) {
-        return adaptPulsarFuture(consumer::closeAsync);
+        return Mono.fromFuture(consumer::closeAsync)
+                .doOnSuccess(__ -> {
+                    LOG.info("Consumer closed {}", consumer);
+                });
     }
 
     @Override
