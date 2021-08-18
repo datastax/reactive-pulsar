@@ -49,4 +49,9 @@ class DefaultReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
     public Flux<ConsumedMessage<T>> consumeMessages() {
         return createReactiveConsumerAdapter().usingConsumerMany(consumer -> readNextMessage(consumer).repeat());
     }
+
+    @Override
+    public Mono<Void> createAndClose() {
+        return createReactiveConsumerAdapter().usingConsumer(consumer -> Mono.empty());
+    }
 }

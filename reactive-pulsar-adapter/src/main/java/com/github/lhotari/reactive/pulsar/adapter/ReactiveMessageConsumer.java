@@ -7,4 +7,6 @@ public interface ReactiveMessageConsumer<T> {
     Mono<ConsumedMessage<T>> consumeMessage();
 
     Flux<ConsumedMessage<T>> consumeMessages();
+
+    Mono<Void> createAndClose();
 }
