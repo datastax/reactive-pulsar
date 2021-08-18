@@ -1,5 +1,6 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -55,14 +56,8 @@ public class PulsarFutureAdapter {
 
     private static void handleException(boolean cancelled, Throwable e) {
         if (cancelled) {
-            rethrowIfNotAlreadyClosedException(e);
+            rethrowIfRelevantException(e);
         } else {
-            sneakyThrow(e);
-        }
-    }
-
-    private static void rethrowIfNotAlreadyClosedException(Throwable e) {
-        if (!isAlreadyClosedCause(e)) {
             sneakyThrow(e);
         }
     }
@@ -70,6 +65,12 @@ public class PulsarFutureAdapter {
     private static boolean isAlreadyClosedCause(Throwable e) {
         return e instanceof PulsarClientException.AlreadyClosedException ||
                 e.getCause() instanceof PulsarClientException.AlreadyClosedException;
+    }
+
+    private static void rethrowIfRelevantException(Throwable e) {
+        if (!isAlreadyClosedCause(e) && !(e instanceof CancellationException)) {
+            sneakyThrow(e);
+        }
     }
 
     private static <E extends Throwable> void sneakyThrow(Throwable e) throws E {
