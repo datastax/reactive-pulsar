@@ -8,5 +8,9 @@ public interface MessageSpec<T> {
         return new DefaultMessageSpecBuilder<T>().value(value);
     }
 
+    static <T> MessageSpec<T> of(T value) {
+        return new ValueOnlyMessageSpec<T>(value);
+    }
+
     void configure(TypedMessageBuilder<T> typedMessageBuilder);
 }

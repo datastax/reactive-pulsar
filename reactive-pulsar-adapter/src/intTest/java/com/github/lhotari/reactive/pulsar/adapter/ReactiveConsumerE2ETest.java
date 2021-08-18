@@ -34,7 +34,7 @@ public class ReactiveConsumerE2ETest {
                     .create();
             messageSender.sendMessages(Flux.range(1, 100)
                             .map(Object::toString)
-                            .map(string -> MessageSpec.builder(string).build()))
+                            .map(MessageSpec::of))
                     .blockLast();
 
             List<String> messages = Collections.synchronizedList(new ArrayList<>());
