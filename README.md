@@ -3,6 +3,11 @@
 Reactive Streams adapter for Apache Pulsar Java Client.
 This uses Project Reactor as the Reactive Streams implementation.
 
+## Library status: API is evolving
+
+The API is evolving and the documentation and examples might not match the released version available in Maven central.
+Please keep this in mind when using the library and the applying the examples.
+
 ## Getting it
 
 **This library requires Java 8 or + to run**.
