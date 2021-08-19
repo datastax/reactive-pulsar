@@ -9,38 +9,59 @@ import org.apache.pulsar.client.api.Schema;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SynchronousSink;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 class DefaultReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
     private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
     private final Schema<T> schema;
     private final ConsumerConfigurer<T> consumerConfigurer;
     private final String topicName;
+    private final boolean acknowledgeAsynchronously;
+    private final Scheduler acknowledgeScheduler;
 
     public DefaultReactiveMessageConsumer(ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory,
                                           Schema<T> schema,
-                                          ConsumerConfigurer<T> consumerConfigurer, String topicName) {
+                                          ConsumerConfigurer<T> consumerConfigurer, String topicName,
+                                          boolean acknowledgeAsynchronously,
+                                          Scheduler acknowledgeScheduler) {
         this.reactiveConsumerAdapterFactory = reactiveConsumerAdapterFactory;
         this.schema = schema;
         this.consumerConfigurer = consumerConfigurer;
         this.topicName = topicName;
+        this.acknowledgeAsynchronously = acknowledgeAsynchronously;
+        this.acknowledgeScheduler = acknowledgeScheduler;
     }
 
     @Override
     public <R> Mono<R> consumeMessage(Function<Mono<Message<T>>, Mono<MessageResult<R>>> messageHandler) {
         return createReactiveConsumerAdapter().usingConsumer(consumer ->
-                messageHandler.apply(readNextMessage(consumer))
-                        .delayUntil(messageResult -> handleAcknowledgement(consumer, messageResult))
-                        .handle(this::handleMessageResult));
+                Mono.using(() -> Schedulers.single(acknowledgeScheduler),
+                        pinnedAcknowledgeScheduler ->
+                                messageHandler.apply(readNextMessage(consumer))
+                                        .delayUntil(messageResult ->
+                                                handleAcknowledgement(consumer, messageResult,
+                                                        pinnedAcknowledgeScheduler))
+                                        .handle(this::handleMessageResult),
+                        Scheduler::dispose));
     }
 
-    private <R> Mono<?> handleAcknowledgement(Consumer<T> consumer, MessageResult<R> messageResult) {
+    private <R> Mono<?> handleAcknowledgement(Consumer<T> consumer, MessageResult<R> messageResult,
+                                              Scheduler pinnedAcknowledgeScheduler) {
         if (messageResult.getMessageId() != null) {
+            Mono<Void> acknowledgementMono;
             if (messageResult.isAcknowledgeMessage()) {
-                return Mono.fromFuture(
+                acknowledgementMono = Mono.fromFuture(
                         () -> consumer.acknowledgeAsync(messageResult.getMessageId()));
             } else {
-                return Mono.fromRunnable(
+                acknowledgementMono = Mono.fromRunnable(
                         () -> consumer.negativeAcknowledge(messageResult.getMessageId()));
+            }
+            acknowledgementMono = acknowledgementMono.subscribeOn(pinnedAcknowledgeScheduler);
+            if (acknowledgeAsynchronously) {
+                return Mono.fromRunnable(acknowledgementMono::subscribe);
+            } else {
+                return acknowledgementMono;
             }
         } else {
             return Mono.empty();
@@ -66,10 +87,14 @@ class DefaultReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 
     @Override
     public <R> Flux<R> consumeMessages(Function<Flux<Message<T>>, Flux<MessageResult<R>>> messageHandler) {
-        return createReactiveConsumerAdapter().usingConsumerMany(
-                consumer -> messageHandler.apply(readNextMessage(consumer).repeat())
-                        .delayUntil(messageResult -> handleAcknowledgement(consumer, messageResult))
-                        .handle(this::handleMessageResult));
+        return createReactiveConsumerAdapter().usingConsumerMany(consumer ->
+                Flux.using(() -> Schedulers.single(acknowledgeScheduler),
+                        pinnedAcknowledgeScheduler ->
+                                messageHandler.apply(readNextMessage(consumer).repeat())
+                                        .delayUntil(messageResult -> handleAcknowledgement(consumer, messageResult,
+                                                pinnedAcknowledgeScheduler))
+                                        .handle(this::handleMessageResult),
+                        Scheduler::dispose));
     }
 
     @Override

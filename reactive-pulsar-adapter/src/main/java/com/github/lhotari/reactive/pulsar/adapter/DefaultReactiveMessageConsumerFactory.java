@@ -1,12 +1,16 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
 import org.apache.pulsar.client.api.Schema;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 class DefaultReactiveMessageConsumerFactory<T> implements ReactiveMessageConsumerFactory<T> {
     private final Schema<T> schema;
     private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
     private ConsumerConfigurer<T> readerConfigurer;
     private String topicName;
+    private boolean acknowledgeAsynchronously = true;
+    private Scheduler acknowledgeScheduler = Schedulers.boundedElastic();
 
     public DefaultReactiveMessageConsumerFactory(Schema<T> schema,
                                                  ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory) {
@@ -27,8 +31,20 @@ class DefaultReactiveMessageConsumerFactory<T> implements ReactiveMessageConsume
     }
 
     @Override
+    public ReactiveMessageConsumerFactory<T> acknowledgeAsynchronously(boolean acknowledgeAsynchronously) {
+        this.acknowledgeAsynchronously = acknowledgeAsynchronously;
+        return this;
+    }
+
+    public ReactiveMessageConsumerFactory<T> acknowledgeScheduler(
+            Scheduler acknowledgeScheduler) {
+        this.acknowledgeScheduler = acknowledgeScheduler;
+        return this;
+    }
+
+    @Override
     public ReactiveMessageConsumer<T> create() {
         return new DefaultReactiveMessageConsumer<T>(reactiveConsumerAdapterFactory, schema, readerConfigurer,
-                topicName);
+                topicName, acknowledgeAsynchronously, acknowledgeScheduler);
     }
 }
