@@ -8,5 +8,12 @@ public interface ReactiveMessageConsumer<T> {
 
     Flux<ConsumedMessage<T>> consumeMessages();
 
-    Mono<Void> createAndClose();
+    /**
+     * Creates the Pulsar Consumer and immediately closes it.
+     * This is useful for creating the Pulsar subscription that is related to the consumer.
+     * Nothing happens unless the returned Mono is subscribed.
+     *
+     * @return a Mono for consuming nothing
+     */
+    Mono<Void> consumeNothing();
 }

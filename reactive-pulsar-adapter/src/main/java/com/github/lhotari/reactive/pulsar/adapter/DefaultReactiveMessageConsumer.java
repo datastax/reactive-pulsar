@@ -51,7 +51,7 @@ class DefaultReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
     }
 
     @Override
-    public Mono<Void> createAndClose() {
+    public Mono<Void> consumeNothing() {
         return createReactiveConsumerAdapter().usingConsumer(consumer -> Mono.empty());
     }
 }
