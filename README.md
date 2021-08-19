@@ -125,7 +125,7 @@ By default, the stream will complete when end of the topic is reached. The end o
 
 The ReactiveMessageReader doesn't support partitioned topics. It's possible to read the content of indidual partitions. Topic names for individual partitions can be discovered using the PulsarClient's `getPartitionsForTopic` method. The adapter library doesn't currently wrap that method.
 
-#### Example: poll for 5 new messages until a timeout occurs 
+#### Example: poll for up to 5 new messages and stop polling when a timeout occurs 
 
 With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new messages when the reader reaches the end of the topic.
 
@@ -146,19 +146,17 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
 ### Consuming messages
 
 ```java
-    ReactiveMessageConsumer<String> messageConsumer =
-            reactivePulsarClient.messageConsumer(Schema.STRING)
-                    .topic(topicName)
-                    .consumerConfigurer(consumerBuilder -> consumerBuilder.subscriptionName("sub"))
-                    .create();
-    messageConsumer.consumeMessages()
-            .map(consumedMessage -> {
-                consumedMessage.acknowledge();
-                return consumedMessage.getMessage().getValue();
-            })
-            .timeout(Duration.ofSeconds(2), Mono.empty())
-            // for demonstration
-            .subscribe(System.out::println);
+    ReactiveMessageConsumer<String> messageConsumer=
+        reactivePulsarClient.messageConsumer(Schema.STRING)
+        .topic(topicName)
+        .consumerConfigurer(consumerBuilder->consumerBuilder.subscriptionName("sub"))
+        .create();
+    messageConsumer.consumeMessages(messageFlux ->
+                    messageFlux.map(message ->
+                            MessageResult.acknowledge(message.getMessageId(), message.getValue())))
+        .timeout(Duration.ofSeconds(2), Mono.empty())
+        // for demonstration
+        .subscribe(System.out::println);
 ```
 
 ### Consuming messages using a message handler component with auto-acknowledgements
