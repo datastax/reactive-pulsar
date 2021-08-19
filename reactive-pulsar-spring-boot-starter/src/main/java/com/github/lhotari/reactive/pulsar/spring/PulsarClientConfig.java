@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("pulsar.client")
 public class PulsarClientConfig extends ClientConfigurationData implements InitializingBean {
     public PulsarClientConfig() {
+        setServiceUrl("pulsar://localhost:6650/");
     }
 
     void setIoThreads(int ioThreads) {
