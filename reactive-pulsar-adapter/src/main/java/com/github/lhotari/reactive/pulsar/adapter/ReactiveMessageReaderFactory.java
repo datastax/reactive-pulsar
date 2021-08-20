@@ -9,5 +9,7 @@ public interface ReactiveMessageReaderFactory<T> {
 
     ReactiveMessageReaderFactory<T> endOfStreamAction(EndOfStreamAction endOfStreamAction);
 
+    ReactiveMessageReaderFactory<T> clone();
+
     ReactiveMessageReader<T> create();
 }

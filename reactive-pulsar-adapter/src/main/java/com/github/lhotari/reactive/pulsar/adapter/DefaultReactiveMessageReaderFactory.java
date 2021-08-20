@@ -41,6 +41,17 @@ class DefaultReactiveMessageReaderFactory<T> implements ReactiveMessageReaderFac
     }
 
     @Override
+    public ReactiveMessageReaderFactory<T> clone() {
+        DefaultReactiveMessageReaderFactory<T> cloned = new DefaultReactiveMessageReaderFactory<>(schema,
+                reactiveReaderAdapterFactory);
+        cloned.readerConfigurer = this.readerConfigurer;
+        cloned.topicName = this.topicName;
+        cloned.startAtSpec = this.startAtSpec;
+        cloned.endOfStreamAction = this.endOfStreamAction;
+        return this;
+    }
+
+    @Override
     public ReactiveMessageReader<T> create() {
         return new DefaultReactiveMessageReader<>(reactiveReaderAdapterFactory, schema, readerConfigurer, topicName,
                 startAtSpec, endOfStreamAction);
