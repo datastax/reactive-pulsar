@@ -1,10 +1,10 @@
 package com.github.lhotari.reactive.pulsar.spring;
 
 class DefaultPulsarTopicNameResolver implements PulsarTopicNameResolver {
-    private final String pulsarTopicPrefix;
+    private final String pulsarTopicNamePrefix;
 
-    public DefaultPulsarTopicNameResolver(String pulsarTopicPrefix) {
-        this.pulsarTopicPrefix = pulsarTopicPrefix;
+    public DefaultPulsarTopicNameResolver(String pulsarTopicNamePrefix) {
+        this.pulsarTopicNamePrefix = pulsarTopicNamePrefix;
     }
 
     @Override
@@ -12,7 +12,7 @@ class DefaultPulsarTopicNameResolver implements PulsarTopicNameResolver {
         if (topicName.contains("://")) {
             return topicName;
         } else {
-            return pulsarTopicPrefix + topicName;
+            return pulsarTopicNamePrefix + topicName;
         }
     }
 }

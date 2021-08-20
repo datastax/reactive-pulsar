@@ -5,6 +5,7 @@ import com.github.lhotari.reactive.pulsar.adapter.MessageSpec;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSender;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;
+import com.github.lhotari.reactive.pulsar.spring.test.SingletonPulsarContainer;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.pulsar.client.api.Consumer;
@@ -16,16 +17,12 @@ import org.apache.pulsar.client.api.Schema;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest
+@ContextConfiguration(initializers = SingletonPulsarContainer.ContextInitializer.class)
 public class ReactiveMessageSenderE2ETest {
-    @DynamicPropertySource
-    static void registerPulsarProperties(DynamicPropertyRegistry registry) {
-        SingletonPulsarContainer.registerPulsarProperties(registry);
-    }
 
     @Autowired
     PulsarClient pulsarClient;

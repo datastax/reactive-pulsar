@@ -1,0 +1,14 @@
+plugins {
+    id 'reactive-pulsar.library-conventions'
+    id 'reactive-pulsar.integration-test-conventions'
+}
+
+dependencies {
+    api 'org.springframework:spring-test:5.3.9'
+    api 'org.springframework:spring-context:5.3.9'
+    api 'org.testcontainers:pulsar:1.16.0'
+    api 'org.apache.pulsar:pulsar-client:2.8.0'
+    api 'org.apache.pulsar:pulsar-client-admin:2.8.0'
+}
+
+description = "Spring Test integration test support for Reactive Streams adapter for Apache Pulsar Java client"

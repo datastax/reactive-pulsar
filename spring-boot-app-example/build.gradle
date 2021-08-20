@@ -16,7 +16,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation project(':reactive-pulsar-spring-boot-starter')
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.testcontainers:pulsar:1.16.0'
+    testImplementation project(':reactive-pulsar-spring-test-support')
 }
 
 test {

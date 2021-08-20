@@ -22,7 +22,7 @@ public class PulsarClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    PulsarTopicNameResolver pulsarTopicNameResolver(@Value("${pulsar.topicnameprefix:persistent://public/default/}")
+    PulsarTopicNameResolver pulsarTopicNameResolver(@Value("${pulsar.topicNamePrefix:persistent://public/default/}")
                                                             String pulsarTopicPrefix) {
         return new DefaultPulsarTopicNameResolver(pulsarTopicPrefix);
     }
