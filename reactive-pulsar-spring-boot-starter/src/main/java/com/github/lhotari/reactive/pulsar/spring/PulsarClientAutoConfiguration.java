@@ -3,6 +3,7 @@ package com.github.lhotari.reactive.pulsar.spring;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.ClientBuilderImpl;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,4 +19,12 @@ public class PulsarClientAutoConfiguration {
     PulsarClient pulsarClient(PulsarClientConfig pulsarClientConfig) throws PulsarClientException {
         return new ClientBuilderImpl(pulsarClientConfig).build();
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    PulsarTopicNameResolver pulsarTopicNameResolver(@Value("${pulsar.topicnameprefix:persistent://public/default/}")
+                                                            String pulsarTopicPrefix) {
+        return new DefaultPulsarTopicNameResolver(pulsarTopicPrefix);
+    }
+
 }
