@@ -47,7 +47,7 @@ public class ReactiveMessageConsumerE2ETest {
             List<String> messages = messageConsumer.consumeMessages(messageFlux ->
                             messageFlux.map(message -> MessageResult.acknowledge(message.getMessageId(),
                                     message.getValue())))
-                    .timeout(Duration.ofSeconds(2), Mono.empty())
+                    .take(Duration.ofSeconds(2))
                     .collectList().block();
 
             assertThat(messages)
@@ -57,7 +57,7 @@ public class ReactiveMessageConsumerE2ETest {
             List<Message<String>> remainingMessages = messageConsumer
                     .consumeMessages(messageFlux -> messageFlux.map(
                             message -> MessageResult.acknowledge(message.getMessageId(), message)))
-                    .timeout(Duration.ofSeconds(2), Mono.empty())
+                    .take(Duration.ofSeconds(2))
                     .collectList()
                     .block();
             assertThat(remainingMessages).isEmpty();

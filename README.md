@@ -136,8 +136,9 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
                     .startAtSpec(StartAtSpec.LATEST)
                     .endOfStreamAction(EndOfStreamAction.POLL)
                     .create();
-    messageReader.readMessages().take(5)
-            .timeout(Duration.ofSeconds(5))
+    messageReader.readMessages()
+            .take(Duration.ofSeconds(5))
+            .take(5)
             // for demonstration
             .subscribe(System.out::println);
 
@@ -154,7 +155,7 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
     messageConsumer.consumeMessages(messageFlux ->
                     messageFlux.map(message ->
                             MessageResult.acknowledge(message.getMessageId(), message.getValue())))
-        .timeout(Duration.ofSeconds(2), Mono.empty())
+        .take(Duration.ofSeconds(2))
         // for demonstration
         .subscribe(System.out::println);
 ```
