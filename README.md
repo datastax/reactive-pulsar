@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.github.lhotari:reactive-pulsar-adapter:0.0.3"
+    implementation "com.github.lhotari:reactive-pulsar-adapter:0.0.4"
 }
 ```
 
@@ -32,7 +32,7 @@ With Maven:
     <dependency>
         <groupId>com.github.lhotari</groupId>
         <artifactId>reactive-pulsar-adapter</artifactId> 
-        <version>0.0.3</version>
+        <version>0.0.4</version>
     </dependency>
 </dependencies>
 ```
@@ -49,8 +49,8 @@ repositories {
 }
 
 dependencies {
-    implementation "com.github.lhotari:reactive-pulsar-spring-boot-starter:0.0.3"
-    testImplementation "com.github.lhotari:reactive-pulsar-spring-test-support:0.0.3"
+    implementation "com.github.lhotari:reactive-pulsar-spring-boot-starter:0.0.4"
+    testImplementation "com.github.lhotari:reactive-pulsar-spring-test-support:0.0.4"
 }
 ```
 
@@ -60,12 +60,12 @@ Getting it with Maven:
     <dependency>
         <groupId>com.github.lhotari</groupId>
         <artifactId>reactive-pulsar-spring-boot-starter</artifactId> 
-        <version>0.0.3</version>
+        <version>0.0.4</version>
     </dependency>
   <dependency>
     <groupId>com.github.lhotari</groupId>
     <artifactId>reactive-pulsar-spring-test-support</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <scope>test</scope>
   </dependency>
 </dependencies>
@@ -111,8 +111,8 @@ is necessary to set the cache on the ReactiveMessageSenderFactory.
 With Gradle:
 ```groovy
 dependencies {
-    implementation "com.github.lhotari:reactive-pulsar-adapter:0.0.3"
-    implementation "com.github.lhotari:reactive-pulsar-caffeine-producer-cache:0.0.3"
+    implementation "com.github.lhotari:reactive-pulsar-adapter:0.0.4"
+    implementation "com.github.lhotari:reactive-pulsar-caffeine-producer-cache:0.0.4"
 }
 ```
 
@@ -122,12 +122,12 @@ With Maven:
     <dependency>
         <groupId>com.github.lhotari</groupId>
         <artifactId>reactive-pulsar-adapter</artifactId> 
-        <version>0.0.3</version>
+        <version>0.0.4</version>
     </dependency>
     <dependency>
         <groupId>com.github.lhotari</groupId>
         <artifactId>reactive-pulsar-caffeine-producer-cache</artifactId>
-        <version>0.0.3</version>
+        <version>0.0.4</version>
     </dependency>
 </dependencies>
 ```
