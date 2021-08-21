@@ -1,5 +1,6 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
+import com.github.lhotari.reactive.pulsar.adapter.MessageSpec;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 
 class ValueOnlyMessageSpec<T> implements MessageSpec<T> {

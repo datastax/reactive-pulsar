@@ -1,5 +1,6 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
+import com.github.lhotari.reactive.pulsar.internal.DefaultImplementationFactory;
 import java.time.Duration;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -10,17 +11,19 @@ import reactor.util.retry.Retry;
 
 public interface ReactiveMessageHandlerBuilder<T> {
     static <T> ReactiveMessageHandlerBuilder<T> builder(ReactiveMessageConsumer<T> messageConsumer) {
-        return new DefaultReactiveMessageHandlerBuilder<>(messageConsumer);
+        return DefaultImplementationFactory.createReactiveMessageHandlerBuilder(messageConsumer);
     }
 
     interface OneByOneMessageHandlerBuilder<T> extends ReactiveMessageHandlerBuilder<T> {
         OneByOneMessageHandlerBuilder<T> handlingTimeout(Duration handlingTimeout);
+
         OneByOneMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger);
     }
 
     OneByOneMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler);
 
-    ReactiveMessageHandlerBuilder<T> streamingMessageHandler(Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler);
+    ReactiveMessageHandlerBuilder<T> streamingMessageHandler(
+            Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler);
 
     ReactiveMessageHandlerBuilder<T> transformPipeline(Function<Mono<Void>, Mono<Void>> transformer);
 

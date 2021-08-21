@@ -1,6 +1,7 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
-import static com.github.lhotari.reactive.pulsar.adapter.PulsarFutureAdapter.adaptPulsarFuture;
+import static com.github.lhotari.reactive.pulsar.internal.PulsarFutureAdapter.adaptPulsarFuture;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveConsumerAdapter;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.Consumer;

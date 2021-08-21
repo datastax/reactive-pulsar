@@ -1,4 +1,4 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -15,11 +15,11 @@ import reactor.core.publisher.Mono;
  * {@link org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException}
  * when the Mono has been cancelled. This is to reduce unnecessary exceptions in logs.
  */
-public class PulsarFutureAdapter {
+class PulsarFutureAdapter {
     private volatile boolean cancelled;
     private volatile CompletableFuture<?> futureReference;
 
-    public static <T> Mono<T> adaptPulsarFuture(Supplier<? extends CompletableFuture<T>> futureSupplier) {
+    static <T> Mono<T> adaptPulsarFuture(Supplier<? extends CompletableFuture<T>> futureSupplier) {
         return Mono.defer(() -> new PulsarFutureAdapter().toMono(futureSupplier));
     }
 

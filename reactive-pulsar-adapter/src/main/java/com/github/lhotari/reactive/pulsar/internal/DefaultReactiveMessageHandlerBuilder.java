@@ -1,5 +1,9 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
+import com.github.lhotari.reactive.pulsar.adapter.MessageResult;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumer;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageHandler;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageHandlerBuilder;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.function.BiConsumer;

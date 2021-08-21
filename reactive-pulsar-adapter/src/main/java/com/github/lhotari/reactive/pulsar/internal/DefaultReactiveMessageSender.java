@@ -1,5 +1,10 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
+import com.github.lhotari.reactive.pulsar.adapter.MessageSpec;
+import com.github.lhotari.reactive.pulsar.adapter.ProducerConfigurer;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSender;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerAdapter;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerAdapterFactory;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerBuilder;

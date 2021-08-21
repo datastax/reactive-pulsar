@@ -1,5 +1,9 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
+import com.github.lhotari.reactive.pulsar.adapter.ConsumerConfigurer;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveConsumerAdapterFactory;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumer;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumerFactory;
 import org.apache.pulsar.client.api.Schema;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;

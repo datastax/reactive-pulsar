@@ -1,5 +1,9 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
+import com.github.lhotari.reactive.pulsar.adapter.PublisherTransformer;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerAdapter;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerAdapterFactory;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.ProducerBuilder;

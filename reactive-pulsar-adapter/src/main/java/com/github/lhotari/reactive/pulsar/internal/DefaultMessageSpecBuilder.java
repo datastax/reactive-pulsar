@@ -1,5 +1,7 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
+import com.github.lhotari.reactive.pulsar.adapter.MessageSpec;
+import com.github.lhotari.reactive.pulsar.adapter.MessageSpecBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

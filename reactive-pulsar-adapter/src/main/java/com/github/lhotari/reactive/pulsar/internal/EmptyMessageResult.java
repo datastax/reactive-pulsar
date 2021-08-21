@@ -1,16 +1,15 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
+import com.github.lhotari.reactive.pulsar.adapter.MessageResult;
 import org.apache.pulsar.client.api.MessageId;
 
-class DefaultMessageResult<T> implements MessageResult<T> {
+class EmptyMessageResult implements MessageResult<Void> {
     private final MessageId messageId;
     private final boolean acknowledgeMessage;
-    private final T value;
 
-    DefaultMessageResult(MessageId messageId, boolean acknowledgeMessage, T value) {
+    EmptyMessageResult(MessageId messageId, boolean acknowledgeMessage) {
         this.messageId = messageId;
         this.acknowledgeMessage = acknowledgeMessage;
-        this.value = value;
     }
 
     @Override
@@ -24,7 +23,7 @@ class DefaultMessageResult<T> implements MessageResult<T> {
     }
 
     @Override
-    public T getValue() {
-        return value;
+    public Void getValue() {
+        return null;
     }
 }

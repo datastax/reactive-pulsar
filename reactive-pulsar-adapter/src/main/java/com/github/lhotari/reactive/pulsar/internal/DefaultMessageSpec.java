@@ -1,5 +1,6 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
+import com.github.lhotari.reactive.pulsar.adapter.MessageSpec;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

@@ -1,6 +1,14 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal;
 
-import static com.github.lhotari.reactive.pulsar.adapter.PulsarFutureAdapter.adaptPulsarFuture;
+import static com.github.lhotari.reactive.pulsar.internal.PulsarFutureAdapter.adaptPulsarFuture;
+import com.github.lhotari.reactive.pulsar.adapter.EndOfStreamAction;
+import com.github.lhotari.reactive.pulsar.adapter.InstantStartAtSpec;
+import com.github.lhotari.reactive.pulsar.adapter.MessageIdStartAtSpec;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageReader;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveReaderAdapter;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveReaderAdapterFactory;
+import com.github.lhotari.reactive.pulsar.adapter.ReaderConfigurer;
+import com.github.lhotari.reactive.pulsar.adapter.StartAtSpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
