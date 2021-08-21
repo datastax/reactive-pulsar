@@ -9,7 +9,8 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
-class DefaultReactiveMessageHandlerBuilder<T> implements ReactiveMessageHandlerBuilder<T> {
+class DefaultReactiveMessageHandlerBuilder<T> implements
+        ReactiveMessageHandlerBuilder.OneByOneMessageHandlerBuilder<T> {
     private final Logger LOG = LoggerFactory.getLogger(DefaultReactiveMessageHandlerBuilder.class);
     private final ReactiveMessageConsumer<T> messageConsumer;
     private Function<Message<T>, Mono<Void>> messageHandler;
@@ -29,26 +30,26 @@ class DefaultReactiveMessageHandlerBuilder<T> implements ReactiveMessageHandlerB
     }
 
     @Override
-    public ReactiveMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler) {
+    public ReactiveMessageHandlerBuilder.OneByOneMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler) {
         this.messageHandler = messageHandler;
         return this;
     }
 
     @Override
-    public ReactiveMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger) {
+    public ReactiveMessageHandlerBuilder.OneByOneMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger) {
         this.errorLogger = errorLogger;
+        return this;
+    }
+
+    @Override
+    public ReactiveMessageHandlerBuilder.OneByOneMessageHandlerBuilder<T> handlingTimeout(Duration handlingTimeout) {
+        this.handlingTimeout = handlingTimeout;
         return this;
     }
 
     @Override
     public ReactiveMessageHandlerBuilder<T> pipelineRetrySpec(Retry pipelineRetrySpec) {
         this.pipelineRetrySpec = pipelineRetrySpec;
-        return this;
-    }
-
-    @Override
-    public ReactiveMessageHandlerBuilder<T> handlingTimeout(Duration handlingTimeout) {
-        this.handlingTimeout = handlingTimeout;
         return this;
     }
 

@@ -12,11 +12,12 @@ public interface ReactiveMessageHandlerBuilder<T> {
         return new DefaultReactiveMessageHandlerBuilder<>(messageConsumer);
     }
 
-    ReactiveMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler);
+    interface OneByOneMessageHandlerBuilder<T> extends ReactiveMessageHandlerBuilder<T> {
+        OneByOneMessageHandlerBuilder<T> handlingTimeout(Duration handlingTimeout);
+        OneByOneMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger);
+    }
 
-    ReactiveMessageHandlerBuilder<T> handlingTimeout(Duration handlingTimeout);
-
-    ReactiveMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger);
+    OneByOneMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler);
 
     ReactiveMessageHandlerBuilder<T> transformPipeline(Function<Mono<Void>, Mono<Void>> transformer);
 
