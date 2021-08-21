@@ -24,7 +24,7 @@ public abstract class AbstractReactiveMessageListenerContainer implements SmartL
     }
 
     @Override
-    public boolean isRunning() {
-        return reactiveMessageHandler.isRunning();
+    public synchronized boolean isRunning() {
+        return reactiveMessageHandler != null ? reactiveMessageHandler.isRunning() : false;
     }
 }
