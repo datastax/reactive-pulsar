@@ -35,15 +35,57 @@ With Maven:
 </dependencies>
 ```
 
+## Spring Boot starter
+
+There's a Spring Boot example at https://github.com/lhotari/reactive-pulsar-showcase .
+
+Getting it with Gradle:
+
+```groovy
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "com.github.lhotari:reactive-pulsar-spring-boot-starter:0.0.3"
+    testImplementation "com.github.lhotari:reactive-pulsar-spring-test-support:0.0.3"
+}
+```
+
+Getting it with Maven:
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.github.lhotari</groupId>
+        <artifactId>reactive-pulsar-spring-boot-starter</artifactId> 
+        <version>0.0.3</version>
+    </dependency>
+  <dependency>
+    <groupId>com.github.lhotari</groupId>
+    <artifactId>reactive-pulsar-spring-test-support</artifactId>
+    <version>0.0.3</version>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+```
+
 ## Usage
 
 ### Initializing the library
+
+#### In standalone application
 
 Using an existing PulsarClient instance:
 
 ```java
 ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
 ```
+
+#### In Spring Boot application using reactive-pulsar-spring-boot-starter
+
+Configure `pulsar.client.serviceUrl` property in application properties. Any additional properties under `pulsar.client.` prefix will be used to configure the Pulsar Client.
+The Spring Boot starter will configure a ReactivePulsarClient bean which will be available for autowiring.
+
 
 ### Sending messages
 
@@ -61,7 +103,8 @@ messageId.subscribe(System.out::println);
 
 ### Sending messages with cached producer
 
-Add require dependency for cache implementation. 
+Add require dependency for cache implementation. This step isn't required when using reactive-pulsar-spring-boot-starter. A `ReactiveProducerCache` instance will be made available as a Spring bean in that case. However, it
+is necessary to set the cache on the ReactiveMessageSenderFactory.
 
 With Gradle:
 ```groovy
