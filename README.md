@@ -163,20 +163,24 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
 ### Consuming messages using a message handler component with auto-acknowledgements
 
 ```java
-ReactiveMessageHandler reactiveMessageHandler =
-   reactivePulsarClient.messageHandler(Schema.STRING)
-           .consumerConfigurer(consumerBuilder ->
-                   consumerBuilder.subscriptionName("sub")
-                           .topic(topicName))
-           .messageHandler(message -> Mono.fromRunnable(() -> {
-               System.out.println(message.getValue());
-           }))
-          .start();
+ReactiveMessageHandler reactiveMessageHandler=
+    ReactiveMessageHandlerBuilder
+        .builder(reactivePulsarClient
+           .messageConsumer(Schema.STRING)
+           .consumerConfigurer(consumerBuilder->
+             consumerBuilder.subscriptionName("sub")
+            .topic(topicName))
+            .create())
+        .messageHandler(message -> Mono.fromRunnable(()->{
+            System.out.println(message.getValue());
+        }))
+        .build()
+        .start();
 // for demonstration
 // the reactive message handler is running in the background, delay for 10 seconds
 Thread.sleep(10000L);
 // now stop the message handler component
-reactiveMessageHandler.close();
+reactiveMessageHandler.stop();
 ```
 
 ## License

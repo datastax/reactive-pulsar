@@ -4,33 +4,28 @@ import java.time.Duration;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.apache.pulsar.client.api.Message;
-import org.apache.pulsar.client.api.Schema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 class DefaultReactiveMessageHandlerBuilder<T> implements ReactiveMessageHandlerBuilder<T> {
-    private final Schema<T> schema;
-    private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
-    private ConsumerConfigurer<T> consumerConfigurer;
+    private final Logger LOG = LoggerFactory.getLogger(DefaultReactiveMessageHandlerBuilder.class);
+    private final ReactiveMessageConsumer<T> messageConsumer;
     private Function<Message<T>, Mono<Void>> messageHandler;
     private BiConsumer<Message<T>, Throwable> errorLogger;
-    private Retry consumeLoopRetrySpec = Retry.backoff(10, Duration.ofSeconds(1))
-            .maxBackoff(Duration.ofSeconds(30));
     private Retry pipelineRetrySpec = Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(5))
-            .maxBackoff(Duration.ofMinutes(1));
+            .maxBackoff(Duration.ofMinutes(1)).doBeforeRetry(retrySignal -> {
+                LOG.error("Message handler pipeline failed." +
+                                "Retrying to start message handler pipeline, retry #{}",
+                        retrySignal.totalRetriesInARow(),
+                        retrySignal.failure());
+            });
     private Duration handlingTimeout = Duration.ofSeconds(120);
-    private Function<Mono<Void>, Mono<Void>> transformer;
+    private Function<Mono<Void>, Mono<Void>> transformer = Function.identity();
 
-    public DefaultReactiveMessageHandlerBuilder(Schema<T> schema,
-                                                ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory) {
-        this.schema = schema;
-        this.reactiveConsumerAdapterFactory = reactiveConsumerAdapterFactory;
-    }
-
-    @Override
-    public ReactiveMessageHandlerBuilder<T> consumerConfigurer(ConsumerConfigurer<T> consumerConfigurer) {
-        this.consumerConfigurer = consumerConfigurer;
-        return this;
+    public DefaultReactiveMessageHandlerBuilder(ReactiveMessageConsumer<T> messageConsumer) {
+        this.messageConsumer = messageConsumer;
     }
 
     @Override
@@ -42,12 +37,6 @@ class DefaultReactiveMessageHandlerBuilder<T> implements ReactiveMessageHandlerB
     @Override
     public ReactiveMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger) {
         this.errorLogger = errorLogger;
-        return this;
-    }
-
-    @Override
-    public ReactiveMessageHandlerBuilder<T> consumeLoopRetrySpec(Retry consumeLoopRetrySpec) {
-        this.consumeLoopRetrySpec = consumeLoopRetrySpec;
         return this;
     }
 
@@ -70,42 +59,44 @@ class DefaultReactiveMessageHandlerBuilder<T> implements ReactiveMessageHandlerB
     }
 
     @Override
-    public ReactiveMessageHandler start() {
-        return new DefaultReactiveMessageHandler<T>(this);
+    public ReactiveMessageHandler build() {
+        Mono<Void> pipeline = messageConsumer.consumeMessages(messageFlux ->
+                        messageFlux.flatMap(message -> messageHandler.apply(message)
+                                .transform(this::decorateMessageHandler)
+                                .thenReturn(MessageResult.acknowledge(message.getMessageId()))
+                                .onErrorResume(throwable -> {
+                                    if (errorLogger != null) {
+                                        try {
+                                            errorLogger.accept(message, throwable);
+                                        } catch (Exception e) {
+                                            LOG.error("Error in calling error logger", e);
+                                        }
+                                    } else {
+                                        LOG.error("Message handling for message id {} failed.", message.getMessageId(),
+                                                throwable);
+                                    }
+                                    // TODO: nack doesn't work for batch messages due to Pulsar bugs
+                                    return Mono.just(MessageResult.negativeAcknowledge(message.getMessageId()));
+                                })))
+                .then()
+                .transform(transformer)
+                .transform(this::decoratePipeline);
+        return new DefaultReactiveMessageHandler(pipeline);
     }
 
-    public Schema<T> getSchema() {
-        return schema;
+    private Mono<Void> decorateMessageHandler(Mono<Void> messageHandler) {
+        if (handlingTimeout != null) {
+            return messageHandler.timeout(handlingTimeout);
+        } else {
+            return messageHandler;
+        }
     }
 
-    public ConsumerConfigurer<T> getConsumerConfigurer() {
-        return consumerConfigurer;
-    }
-
-    public Function<Message<T>, Mono<Void>> getMessageHandler() {
-        return messageHandler;
-    }
-
-    public BiConsumer<Message<T>, Throwable> getErrorLogger() {
-        return errorLogger;
-    }
-
-    public Retry getConsumeLoopRetrySpec() {
-        return consumeLoopRetrySpec;
-    }
-
-    public Retry getPipelineRetrySpec() {
-        return pipelineRetrySpec;
-    }
-
-    public Duration getHandlingTimeout() {
-        return handlingTimeout;
-    }
-
-    public Function<Mono<Void>, Mono<Void>> getTransformer() {
-        return transformer;
-    }
-    public ReactiveConsumerAdapterFactory getReactiveConsumerAdapterFactory() {
-        return reactiveConsumerAdapterFactory;
+    private Mono<Void> decoratePipeline(Mono<Void> pipeline) {
+        if (pipelineRetrySpec != null) {
+            return pipeline.retryWhen(pipelineRetrySpec);
+        } else {
+            return pipeline;
+        }
     }
 }

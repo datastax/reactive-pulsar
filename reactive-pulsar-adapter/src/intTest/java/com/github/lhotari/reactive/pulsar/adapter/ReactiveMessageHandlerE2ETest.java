@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class ReactiveConsumerE2ETest {
+public class ReactiveMessageHandlerE2ETest {
 
     @Test
     void shouldConsumeMessages() throws Exception {
@@ -39,15 +39,20 @@ public class ReactiveConsumerE2ETest {
 
             List<String> messages = Collections.synchronizedList(new ArrayList<>());
             CountDownLatch latch = new CountDownLatch(100);
+
             try (ReactiveMessageHandler reactiveMessageHandler =
-                         reactivePulsarClient.messageHandler(Schema.STRING)
-                                 .consumerConfigurer(consumerBuilder ->
-                                         consumerBuilder.subscriptionName("sub")
-                                                 .topic(topicName))
+                         ReactiveMessageHandlerBuilder
+                                 .builder(reactivePulsarClient
+                                         .messageConsumer(Schema.STRING)
+                                         .consumerConfigurer(consumerBuilder ->
+                                                 consumerBuilder.subscriptionName("sub")
+                                                         .topic(topicName))
+                                         .create())
                                  .messageHandler(message -> Mono.fromRunnable(() -> {
                                      messages.add(message.getValue());
                                      latch.countDown();
                                  }))
+                                 .build()
                                  .start()) {
                 latch.await(5, TimeUnit.SECONDS);
                 assertThat(messages)

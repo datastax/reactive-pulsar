@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 class DefaultReactiveConsumerAdapter<T> implements ReactiveConsumerAdapter<T> {
     private Logger LOG = LoggerFactory.getLogger(DefaultReactiveConsumerAdapter.class);

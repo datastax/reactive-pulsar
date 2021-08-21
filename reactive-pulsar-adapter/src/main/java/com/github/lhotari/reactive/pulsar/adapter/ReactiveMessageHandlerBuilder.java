@@ -8,19 +8,19 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 public interface ReactiveMessageHandlerBuilder<T> {
-    ReactiveMessageHandlerBuilder<T> consumerConfigurer(ConsumerConfigurer<T> consumerConfigurer);
+    static <T> ReactiveMessageHandlerBuilder<T> builder(ReactiveMessageConsumer<T> messageConsumer) {
+        return new DefaultReactiveMessageHandlerBuilder<>(messageConsumer);
+    }
 
     ReactiveMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler);
 
-    ReactiveMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger);
-
-    ReactiveMessageHandlerBuilder<T> consumeLoopRetrySpec(Retry consumeLoopRetrySpec);
-
-    ReactiveMessageHandlerBuilder<T> pipelineRetrySpec(Retry pipelineRetrySpec);
-
     ReactiveMessageHandlerBuilder<T> handlingTimeout(Duration handlingTimeout);
+
+    ReactiveMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger);
 
     ReactiveMessageHandlerBuilder<T> transformPipeline(Function<Mono<Void>, Mono<Void>> transformer);
 
-    ReactiveMessageHandler start();
+    ReactiveMessageHandlerBuilder<T> pipelineRetrySpec(Retry pipelineRetrySpec);
+
+    ReactiveMessageHandler build();
 }
