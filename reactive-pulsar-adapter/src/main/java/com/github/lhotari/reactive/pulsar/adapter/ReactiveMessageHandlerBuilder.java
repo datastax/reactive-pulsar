@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.apache.pulsar.client.api.Message;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
@@ -18,6 +19,8 @@ public interface ReactiveMessageHandlerBuilder<T> {
     }
 
     OneByOneMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler);
+
+    ReactiveMessageHandlerBuilder<T> streamingMessageHandler(Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler);
 
     ReactiveMessageHandlerBuilder<T> transformPipeline(Function<Mono<Void>, Mono<Void>> transformer);
 
