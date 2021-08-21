@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.github.lhotari:reactive-pulsar-adapter:0.0.2"
+    implementation "com.github.lhotari:reactive-pulsar-adapter:0.0.3"
 }
 ```
 
@@ -30,7 +30,7 @@ With Maven:
     <dependency>
         <groupId>com.github.lhotari</groupId>
         <artifactId>reactive-pulsar-adapter</artifactId> 
-        <version>0.0.2</version>
+        <version>0.0.3</version>
     </dependency>
 </dependencies>
 ```
@@ -66,8 +66,8 @@ Add require dependency for cache implementation.
 With Gradle:
 ```groovy
 dependencies {
-    implementation "com.github.lhotari:reactive-pulsar-adapter:0.0.2"
-    implementation "com.github.lhotari:reactive-pulsar-caffeine-producer-cache:0.0.2"
+    implementation "com.github.lhotari:reactive-pulsar-adapter:0.0.3"
+    implementation "com.github.lhotari:reactive-pulsar-caffeine-producer-cache:0.0.3"
 }
 ```
 
@@ -77,12 +77,12 @@ With Maven:
     <dependency>
         <groupId>com.github.lhotari</groupId>
         <artifactId>reactive-pulsar-adapter</artifactId> 
-        <version>0.0.2</version>
+        <version>0.0.3</version>
     </dependency>
     <dependency>
         <groupId>com.github.lhotari</groupId>
         <artifactId>reactive-pulsar-caffeine-producer-cache</artifactId>
-        <version>0.0.2</version>
+        <version>0.0.3</version>
     </dependency>
 </dependencies>
 ```
