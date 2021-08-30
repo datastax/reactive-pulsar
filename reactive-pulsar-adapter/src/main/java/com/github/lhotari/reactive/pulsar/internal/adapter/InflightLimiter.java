@@ -1,4 +1,4 @@
-package com.github.lhotari.reactive.pulsar.adapter;
+package com.github.lhotari.reactive.pulsar.internal.adapter;
 
 import com.github.lhotari.reactive.pulsar.resourcewrapper.PublisherTransformer;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,7 +14,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.context.Context;
 
-public class InflightLimiter implements PublisherTransformer {
+class InflightLimiter implements PublisherTransformer {
 
     private static final Logger LOG = LoggerFactory.getLogger(InflightLimiter.class);
     MpmcArrayQueue<InflightLimiterSubscriber<?>> pendingSubscriptions = new MpmcArrayQueue<>(1024);

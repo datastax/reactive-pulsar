@@ -1,6 +1,5 @@
 package com.github.lhotari.reactive.pulsar.internal.adapter;
 
-import com.github.lhotari.reactive.pulsar.adapter.InflightLimiter;
 import com.github.lhotari.reactive.pulsar.adapter.MessageResult;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumer;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageHandler;
