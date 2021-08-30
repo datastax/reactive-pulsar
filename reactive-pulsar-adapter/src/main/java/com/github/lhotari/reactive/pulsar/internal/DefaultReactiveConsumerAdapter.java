@@ -1,6 +1,7 @@
 package com.github.lhotari.reactive.pulsar.internal;
 
 import static com.github.lhotari.reactive.pulsar.internal.PulsarFutureAdapter.adaptPulsarFuture;
+
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveConsumerAdapter;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -13,12 +14,15 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 class DefaultReactiveConsumerAdapter<T> implements ReactiveConsumerAdapter<T> {
+
     private Logger LOG = LoggerFactory.getLogger(DefaultReactiveConsumerAdapter.class);
     private final Supplier<PulsarClient> pulsarClientSupplier;
     private final Function<PulsarClient, ConsumerBuilder<T>> consumerBuilderFactory;
 
-    public DefaultReactiveConsumerAdapter(Supplier<PulsarClient> pulsarClientSupplier,
-                                          Function<PulsarClient, ConsumerBuilder<T>> consumerBuilderFactory) {
+    public DefaultReactiveConsumerAdapter(
+        Supplier<PulsarClient> pulsarClientSupplier,
+        Function<PulsarClient, ConsumerBuilder<T>> consumerBuilderFactory
+    ) {
         this.pulsarClientSupplier = pulsarClientSupplier;
         this.consumerBuilderFactory = consumerBuilderFactory;
     }
@@ -28,23 +32,20 @@ class DefaultReactiveConsumerAdapter<T> implements ReactiveConsumerAdapter<T> {
     }
 
     private Mono<Void> closeConsumer(Consumer<?> consumer) {
-        return Mono.fromFuture(consumer::closeAsync)
-                .doOnSuccess(__ -> {
-                    LOG.info("Consumer closed {}", consumer);
-                });
+        return Mono
+            .fromFuture(consumer::closeAsync)
+            .doOnSuccess(__ -> {
+                LOG.info("Consumer closed {}", consumer);
+            });
     }
 
     @Override
     public <R> Mono<R> usingConsumer(Function<Consumer<T>, Mono<R>> usingConsumerAction) {
-        return Mono.usingWhen(createConsumerMono(),
-                usingConsumerAction,
-                this::closeConsumer);
+        return Mono.usingWhen(createConsumerMono(), usingConsumerAction, this::closeConsumer);
     }
 
     @Override
     public <R> Flux<R> usingConsumerMany(Function<Consumer<T>, Flux<R>> usingConsumerAction) {
-        return Flux.usingWhen(createConsumerMono(),
-                usingConsumerAction,
-                this::closeConsumer);
+        return Flux.usingWhen(createConsumerMono(), usingConsumerAction, this::closeConsumer);
     }
 }

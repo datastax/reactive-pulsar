@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 
 class DefaultMessageSpec<T> implements MessageSpec<T> {
+
     private final String key;
     private final byte[] orderingKey;
     private final byte[] keyBytes;
@@ -20,10 +21,20 @@ class DefaultMessageSpec<T> implements MessageSpec<T> {
     private final Long deliverAfterDelay;
     private final TimeUnit deliverAfterUnit;
 
-    DefaultMessageSpec(String key, byte[] orderingKey, byte[] keyBytes, T value, Map<String, String> properties,
-                       Long eventTime, Long sequenceId, List<String> replicationClusters,
-                       boolean disableReplication,
-                       Long deliverAt, Long deliverAfterDelay, TimeUnit deliverAfterUnit) {
+    DefaultMessageSpec(
+        String key,
+        byte[] orderingKey,
+        byte[] keyBytes,
+        T value,
+        Map<String, String> properties,
+        Long eventTime,
+        Long sequenceId,
+        List<String> replicationClusters,
+        boolean disableReplication,
+        Long deliverAt,
+        Long deliverAfterDelay,
+        TimeUnit deliverAfterUnit
+    ) {
         this.key = key;
         this.orderingKey = orderingKey;
         this.keyBytes = keyBytes;

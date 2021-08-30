@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 public final class InstantStartAtSpec extends StartAtSpec {
+
     private final Instant instant;
 
     public InstantStartAtSpec(final Instant instant) {
@@ -33,8 +34,6 @@ public final class InstantStartAtSpec extends StartAtSpec {
 
     @Override
     public String toString() {
-        return "InstantStartAtSpec{" +
-                "instant=" + instant +
-                '}';
+        return "InstantStartAtSpec{" + "instant=" + instant + '}';
     }
 }

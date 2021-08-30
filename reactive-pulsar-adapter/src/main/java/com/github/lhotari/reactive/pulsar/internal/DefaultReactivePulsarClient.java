@@ -8,6 +8,7 @@ import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;
 import org.apache.pulsar.client.api.Schema;
 
 class DefaultReactivePulsarClient implements ReactivePulsarClient {
+
     private final ReactivePulsarAdapter reactivePulsarAdapter;
 
     DefaultReactivePulsarClient(ReactivePulsarAdapter reactivePulsarAdapter) {

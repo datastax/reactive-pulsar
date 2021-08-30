@@ -1,6 +1,5 @@
 package com.github.lhotari.reactive.pulsar.spring;
 
-
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarAdapter;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;

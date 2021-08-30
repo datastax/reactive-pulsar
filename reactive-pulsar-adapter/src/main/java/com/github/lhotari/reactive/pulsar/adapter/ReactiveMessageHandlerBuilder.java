@@ -33,7 +33,8 @@ public interface ReactiveMessageHandlerBuilder<T> {
     OneByOneMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler);
 
     ReactiveMessageHandlerBuilder<T> streamingMessageHandler(
-            Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler);
+        Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler
+    );
 
     ReactiveMessageHandlerBuilder<T> transformPipeline(Function<Mono<Void>, Mono<Void>> transformer);
 

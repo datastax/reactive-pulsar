@@ -1,6 +1,7 @@
 package com.github.lhotari.reactive.pulsar.internal;
 
 import static com.github.lhotari.reactive.pulsar.internal.PulsarFutureAdapter.adaptPulsarFuture;
+
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveReaderAdapter;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -11,11 +12,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 class DefaultReactiveReaderAdapter<T> implements ReactiveReaderAdapter<T> {
+
     private final Supplier<PulsarClient> pulsarClientSupplier;
     private final Function<PulsarClient, ReaderBuilder<T>> readerBuilderFactory;
 
-    public DefaultReactiveReaderAdapter(Supplier<PulsarClient> pulsarClientSupplier,
-                                        Function<PulsarClient, ReaderBuilder<T>> readerBuilderFactory) {
+    public DefaultReactiveReaderAdapter(
+        Supplier<PulsarClient> pulsarClientSupplier,
+        Function<PulsarClient, ReaderBuilder<T>> readerBuilderFactory
+    ) {
         this.pulsarClientSupplier = pulsarClientSupplier;
         this.readerBuilderFactory = readerBuilderFactory;
     }
@@ -30,15 +34,11 @@ class DefaultReactiveReaderAdapter<T> implements ReactiveReaderAdapter<T> {
 
     @Override
     public <R> Mono<R> usingReader(Function<Reader<T>, Mono<R>> usingReaderAction) {
-        return Mono.usingWhen(createReaderMono(),
-                usingReaderAction,
-                this::closeReader);
+        return Mono.usingWhen(createReaderMono(), usingReaderAction, this::closeReader);
     }
 
     @Override
     public <R> Flux<R> usingReaderMany(Function<Reader<T>, Flux<R>> usingReaderAction) {
-        return Flux.usingWhen(createReaderMono(),
-                usingReaderAction,
-                this::closeReader);
+        return Flux.usingWhen(createReaderMono(), usingReaderAction, this::closeReader);
     }
 }

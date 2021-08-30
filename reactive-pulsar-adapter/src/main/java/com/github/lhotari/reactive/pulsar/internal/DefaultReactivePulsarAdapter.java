@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import org.apache.pulsar.client.api.PulsarClient;
 
 class DefaultReactivePulsarAdapter implements ReactivePulsarAdapter {
+
     private final Supplier<PulsarClient> pulsarClientSupplier;
 
     public DefaultReactivePulsarAdapter(Supplier<PulsarClient> pulsarClientSupplier) {

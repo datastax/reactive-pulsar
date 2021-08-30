@@ -14,6 +14,7 @@ import org.apache.pulsar.client.api.PulsarClient;
 import reactor.core.publisher.Mono;
 
 public class DefaultImplementationFactory {
+
     public static ReactivePulsarClient createReactivePulsarClient(ReactivePulsarAdapter reactivePulsarAdapter) {
         return new DefaultReactivePulsarClient(reactivePulsarAdapter);
     }
@@ -22,7 +23,9 @@ public class DefaultImplementationFactory {
         return new DefaultReactivePulsarAdapter(pulsarClientSupplier);
     }
 
-    public static <T> ReactiveMessageHandlerBuilder<T> createReactiveMessageHandlerBuilder(ReactiveMessageConsumer<T> messageConsumer) {
+    public static <T> ReactiveMessageHandlerBuilder<T> createReactiveMessageHandlerBuilder(
+        ReactiveMessageConsumer<T> messageConsumer
+    ) {
         return new DefaultReactiveMessageHandlerBuilder<>(messageConsumer);
     }
 

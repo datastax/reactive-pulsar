@@ -7,12 +7,16 @@ import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.impl.conf.ProducerConfigurationData;
 
 final class DefaultProducerCacheKey implements ProducerCacheKey {
+
     private final PulsarClient pulsarClient;
     private final ProducerConfigurationData producerConfigurationData;
     private final Schema<?> schema;
 
-    DefaultProducerCacheKey(final PulsarClient pulsarClient, final ProducerConfigurationData producerConfigurationData,
-                            final Schema<?> schema) {
+    DefaultProducerCacheKey(
+        final PulsarClient pulsarClient,
+        final ProducerConfigurationData producerConfigurationData,
+        final Schema<?> schema
+    ) {
         this.pulsarClient = pulsarClient;
         this.producerConfigurationData = producerConfigurationData;
         this.schema = schema;
@@ -31,8 +35,11 @@ final class DefaultProducerCacheKey implements ProducerCacheKey {
             return false;
         }
         DefaultProducerCacheKey that = (DefaultProducerCacheKey) o;
-        return Objects.equals(pulsarClient, that.pulsarClient) && Objects.equals(
-                producerConfigurationData, that.producerConfigurationData) && Objects.equals(schema, that.schema);
+        return (
+            Objects.equals(pulsarClient, that.pulsarClient) &&
+            Objects.equals(producerConfigurationData, that.producerConfigurationData) &&
+            Objects.equals(schema, that.schema)
+        );
     }
 
     @Override

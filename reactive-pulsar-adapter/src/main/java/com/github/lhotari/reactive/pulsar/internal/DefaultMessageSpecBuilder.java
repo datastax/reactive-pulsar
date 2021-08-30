@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 class DefaultMessageSpecBuilder<T> implements MessageSpecBuilder<T> {
+
     private String key;
     private byte[] orderingKey;
     private byte[] keyBytes;
@@ -103,7 +104,19 @@ class DefaultMessageSpecBuilder<T> implements MessageSpecBuilder<T> {
 
     @Override
     public MessageSpec<T> build() {
-        return new DefaultMessageSpec<T>(key, orderingKey, keyBytes, value, properties, eventTime, sequenceId,
-                replicationClusters, disableReplication, deliverAt, deliverAfterDelay, deliverAfterUnit);
+        return new DefaultMessageSpec<T>(
+            key,
+            orderingKey,
+            keyBytes,
+            value,
+            properties,
+            eventTime,
+            sequenceId,
+            replicationClusters,
+            disableReplication,
+            deliverAt,
+            deliverAfterDelay,
+            deliverAfterUnit
+        );
     }
 }

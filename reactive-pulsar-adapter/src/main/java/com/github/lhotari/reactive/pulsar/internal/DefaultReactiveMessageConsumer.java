@@ -1,6 +1,7 @@
 package com.github.lhotari.reactive.pulsar.internal;
 
 import static com.github.lhotari.reactive.pulsar.internal.PulsarFutureAdapter.adaptPulsarFuture;
+
 import com.github.lhotari.reactive.pulsar.adapter.ConsumerConfigurer;
 import com.github.lhotari.reactive.pulsar.adapter.MessageResult;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveConsumerAdapter;
@@ -18,6 +19,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 class DefaultReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
+
     private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
     private final Schema<T> schema;
     private final ConsumerConfigurer<T> consumerConfigurer;
@@ -25,11 +27,14 @@ class DefaultReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
     private final boolean acknowledgeAsynchronously;
     private final Scheduler acknowledgeScheduler;
 
-    public DefaultReactiveMessageConsumer(ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory,
-                                          Schema<T> schema,
-                                          ConsumerConfigurer<T> consumerConfigurer, String topicName,
-                                          boolean acknowledgeAsynchronously,
-                                          Scheduler acknowledgeScheduler) {
+    public DefaultReactiveMessageConsumer(
+        ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory,
+        Schema<T> schema,
+        ConsumerConfigurer<T> consumerConfigurer,
+        String topicName,
+        boolean acknowledgeAsynchronously,
+        Scheduler acknowledgeScheduler
+    ) {
         this.reactiveConsumerAdapterFactory = reactiveConsumerAdapterFactory;
         this.schema = schema;
         this.consumerConfigurer = consumerConfigurer;
@@ -40,27 +45,34 @@ class DefaultReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 
     @Override
     public <R> Mono<R> consumeMessage(Function<Mono<Message<T>>, Mono<MessageResult<R>>> messageHandler) {
-        return createReactiveConsumerAdapter().usingConsumer(consumer ->
-                Mono.using(() -> Schedulers.single(acknowledgeScheduler),
-                        pinnedAcknowledgeScheduler ->
-                                messageHandler.apply(readNextMessage(consumer))
-                                        .delayUntil(messageResult ->
-                                                handleAcknowledgement(consumer, messageResult,
-                                                        pinnedAcknowledgeScheduler))
-                                        .handle(this::handleMessageResult),
-                        Scheduler::dispose));
+        return createReactiveConsumerAdapter()
+            .usingConsumer(consumer ->
+                Mono.using(
+                    () -> Schedulers.single(acknowledgeScheduler),
+                    pinnedAcknowledgeScheduler ->
+                        messageHandler
+                            .apply(readNextMessage(consumer))
+                            .delayUntil(messageResult ->
+                                handleAcknowledgement(consumer, messageResult, pinnedAcknowledgeScheduler)
+                            )
+                            .handle(this::handleMessageResult),
+                    Scheduler::dispose
+                )
+            );
     }
 
-    private <R> Mono<?> handleAcknowledgement(Consumer<T> consumer, MessageResult<R> messageResult,
-                                              Scheduler pinnedAcknowledgeScheduler) {
+    private <R> Mono<?> handleAcknowledgement(
+        Consumer<T> consumer,
+        MessageResult<R> messageResult,
+        Scheduler pinnedAcknowledgeScheduler
+    ) {
         if (messageResult.getMessageId() != null) {
             Mono<Void> acknowledgementMono;
             if (messageResult.isAcknowledgeMessage()) {
-                acknowledgementMono = Mono.fromFuture(
-                        () -> consumer.acknowledgeAsync(messageResult.getMessageId()));
+                acknowledgementMono = Mono.fromFuture(() -> consumer.acknowledgeAsync(messageResult.getMessageId()));
             } else {
-                acknowledgementMono = Mono.fromRunnable(
-                        () -> consumer.negativeAcknowledge(messageResult.getMessageId()));
+                acknowledgementMono =
+                    Mono.fromRunnable(() -> consumer.negativeAcknowledge(messageResult.getMessageId()));
             }
             acknowledgementMono = acknowledgementMono.subscribeOn(pinnedAcknowledgeScheduler);
             if (acknowledgeAsynchronously) {
@@ -92,14 +104,20 @@ class DefaultReactiveMessageConsumer<T> implements ReactiveMessageConsumer<T> {
 
     @Override
     public <R> Flux<R> consumeMessages(Function<Flux<Message<T>>, Flux<MessageResult<R>>> messageHandler) {
-        return createReactiveConsumerAdapter().usingConsumerMany(consumer ->
-                Flux.using(() -> Schedulers.single(acknowledgeScheduler),
-                        pinnedAcknowledgeScheduler ->
-                                messageHandler.apply(readNextMessage(consumer).repeat())
-                                        .delayUntil(messageResult -> handleAcknowledgement(consumer, messageResult,
-                                                pinnedAcknowledgeScheduler))
-                                        .handle(this::handleMessageResult),
-                        Scheduler::dispose));
+        return createReactiveConsumerAdapter()
+            .usingConsumerMany(consumer ->
+                Flux.using(
+                    () -> Schedulers.single(acknowledgeScheduler),
+                    pinnedAcknowledgeScheduler ->
+                        messageHandler
+                            .apply(readNextMessage(consumer).repeat())
+                            .delayUntil(messageResult ->
+                                handleAcknowledgement(consumer, messageResult, pinnedAcknowledgeScheduler)
+                            )
+                            .handle(this::handleMessageResult),
+                    Scheduler::dispose
+                )
+            );
     }
 
     @Override

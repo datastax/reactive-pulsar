@@ -8,8 +8,7 @@ import org.apache.pulsar.client.api.PulsarClient;
 public interface ReactiveProducerAdapterFactory {
     ReactiveProducerAdapterFactory cache(ReactiveProducerCache producerCache);
 
-    ReactiveProducerAdapterFactory producerActionTransformer(
-            Supplier<PublisherTransformer> producerActionTransformer);
+    ReactiveProducerAdapterFactory producerActionTransformer(Supplier<PublisherTransformer> producerActionTransformer);
 
     <T> ReactiveProducerAdapter<T> create(Function<PulsarClient, ProducerBuilder<T>> producerBuilderFactory);
 }

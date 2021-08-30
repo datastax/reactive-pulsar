@@ -14,19 +14,23 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
-class DefaultReactiveMessageHandlerBuilder<T> implements
-        ReactiveMessageHandlerBuilder.ConcurrentOneByOneMessageHandlerBuilder<T> {
+class DefaultReactiveMessageHandlerBuilder<T>
+    implements ReactiveMessageHandlerBuilder.ConcurrentOneByOneMessageHandlerBuilder<T> {
+
     private final Logger LOG = LoggerFactory.getLogger(DefaultReactiveMessageHandlerBuilder.class);
     private final ReactiveMessageConsumer<T> messageConsumer;
     private Function<Message<T>, Mono<Void>> messageHandler;
     private BiConsumer<Message<T>, Throwable> errorLogger;
-    private Retry pipelineRetrySpec = Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(5))
-            .maxBackoff(Duration.ofMinutes(1)).doBeforeRetry(retrySignal -> {
-                LOG.error("Message handler pipeline failed." +
-                                "Retrying to start message handler pipeline, retry #{}",
-                        retrySignal.totalRetriesInARow(),
-                        retrySignal.failure());
-            });
+    private Retry pipelineRetrySpec = Retry
+        .backoff(Long.MAX_VALUE, Duration.ofSeconds(5))
+        .maxBackoff(Duration.ofMinutes(1))
+        .doBeforeRetry(retrySignal -> {
+            LOG.error(
+                "Message handler pipeline failed." + "Retrying to start message handler pipeline, retry #{}",
+                retrySignal.totalRetriesInARow(),
+                retrySignal.failure()
+            );
+        });
     private Duration handlingTimeout = Duration.ofSeconds(120);
     private Function<Mono<Void>, Mono<Void>> transformer = Function.identity();
     private Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler;
@@ -40,21 +44,24 @@ class DefaultReactiveMessageHandlerBuilder<T> implements
 
     @Override
     public ReactiveMessageHandlerBuilder.OneByOneMessageHandlerBuilder<T> messageHandler(
-            Function<Message<T>, Mono<Void>> messageHandler) {
+        Function<Message<T>, Mono<Void>> messageHandler
+    ) {
         this.messageHandler = messageHandler;
         return this;
     }
 
     @Override
     public ReactiveMessageHandlerBuilder<T> streamingMessageHandler(
-            Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler) {
+        Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler
+    ) {
         this.streamingMessageHandler = streamingMessageHandler;
         return this;
     }
 
     @Override
     public ReactiveMessageHandlerBuilder.OneByOneMessageHandlerBuilder<T> errorLogger(
-            BiConsumer<Message<T>, Throwable> errorLogger) {
+        BiConsumer<Message<T>, Throwable> errorLogger
+    ) {
         this.errorLogger = errorLogger;
         return this;
     }
@@ -102,8 +109,17 @@ class DefaultReactiveMessageHandlerBuilder<T> implements
 
     @Override
     public ReactiveMessageHandler build() {
-        return new DefaultReactiveMessageHandler(messageConsumer, messageHandler, errorLogger, pipelineRetrySpec,
-                handlingTimeout, transformer, streamingMessageHandler, keyOrdered, concurrency, maxInflight);
+        return new DefaultReactiveMessageHandler(
+            messageConsumer,
+            messageHandler,
+            errorLogger,
+            pipelineRetrySpec,
+            handlingTimeout,
+            transformer,
+            streamingMessageHandler,
+            keyOrdered,
+            concurrency,
+            maxInflight
+        );
     }
-
 }

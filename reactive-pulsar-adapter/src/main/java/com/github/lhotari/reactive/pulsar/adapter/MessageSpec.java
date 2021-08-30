@@ -4,7 +4,6 @@ import com.github.lhotari.reactive.pulsar.internal.DefaultImplementationFactory;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 
 public interface MessageSpec<T> {
-
     static <T> MessageSpecBuilder<T> builder(T value) {
         return DefaultImplementationFactory.createMessageSpecBuilder(value);
     }

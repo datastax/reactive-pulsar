@@ -13,17 +13,21 @@ import org.apache.pulsar.client.api.TypedMessageBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-class DefaultReactiveMessageSender<T>
-        implements ReactiveMessageSender<T> {
+class DefaultReactiveMessageSender<T> implements ReactiveMessageSender<T> {
+
     private final Schema<T> schema;
     private final ProducerConfigurer<T> producerConfigurer;
     private final String topicName;
     private final int maxInflight;
     private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
 
-    public DefaultReactiveMessageSender(Schema<T> schema, ProducerConfigurer<T> producerConfigurer,
-                                        String topicName, int maxInflight,
-                                        ReactiveProducerAdapterFactory reactiveProducerAdapterFactory) {
+    public DefaultReactiveMessageSender(
+        Schema<T> schema,
+        ProducerConfigurer<T> producerConfigurer,
+        String topicName,
+        int maxInflight,
+        ReactiveProducerAdapterFactory reactiveProducerAdapterFactory
+    ) {
         this.schema = schema;
         this.producerConfigurer = producerConfigurer;
         this.topicName = topicName;
@@ -47,7 +51,7 @@ class DefaultReactiveMessageSender<T>
     @Override
     public Mono<MessageId> sendMessage(Mono<MessageSpec<T>> messageSpec) {
         return createReactiveProducerAdapter()
-                .usingProducer(producer -> messageSpec.flatMap(m -> createMessageMono(m, producer)));
+            .usingProducer(producer -> messageSpec.flatMap(m -> createMessageMono(m, producer)));
     }
 
     private Mono<MessageId> createMessageMono(MessageSpec<T> messageSpec, Producer<T> producer) {
@@ -61,8 +65,8 @@ class DefaultReactiveMessageSender<T>
     @Override
     public Flux<MessageId> sendMessages(Flux<MessageSpec<T>> messageSpecs) {
         return createReactiveProducerAdapter()
-                .usingProducerMany(producer ->
-                        messageSpecs.flatMapSequential(messageSpec -> createMessageMono(messageSpec, producer),
-                                maxInflight));
+            .usingProducerMany(producer ->
+                messageSpecs.flatMapSequential(messageSpec -> createMessageMono(messageSpec, producer), maxInflight)
+            );
     }
 }

@@ -9,6 +9,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 class DefaultReactiveMessageConsumerBuilder<T> implements ReactiveMessageConsumerBuilder<T> {
+
     private final Schema<T> schema;
     private final ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory;
     private ConsumerConfigurer<T> readerConfigurer;
@@ -16,8 +17,10 @@ class DefaultReactiveMessageConsumerBuilder<T> implements ReactiveMessageConsume
     private boolean acknowledgeAsynchronously = true;
     private Scheduler acknowledgeScheduler = Schedulers.boundedElastic();
 
-    public DefaultReactiveMessageConsumerBuilder(Schema<T> schema,
-                                                 ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory) {
+    public DefaultReactiveMessageConsumerBuilder(
+        Schema<T> schema,
+        ReactiveConsumerAdapterFactory reactiveConsumerAdapterFactory
+    ) {
         this.schema = schema;
         this.reactiveConsumerAdapterFactory = reactiveConsumerAdapterFactory;
     }
@@ -40,15 +43,20 @@ class DefaultReactiveMessageConsumerBuilder<T> implements ReactiveMessageConsume
         return this;
     }
 
-    public ReactiveMessageConsumerBuilder<T> acknowledgeScheduler(
-            Scheduler acknowledgeScheduler) {
+    public ReactiveMessageConsumerBuilder<T> acknowledgeScheduler(Scheduler acknowledgeScheduler) {
         this.acknowledgeScheduler = acknowledgeScheduler;
         return this;
     }
 
     @Override
     public ReactiveMessageConsumer<T> build() {
-        return new DefaultReactiveMessageConsumer<T>(reactiveConsumerAdapterFactory, schema, readerConfigurer,
-                topicName, acknowledgeAsynchronously, acknowledgeScheduler);
+        return new DefaultReactiveMessageConsumer<T>(
+            reactiveConsumerAdapterFactory,
+            schema,
+            readerConfigurer,
+            topicName,
+            acknowledgeAsynchronously,
+            acknowledgeScheduler
+        );
     }
 }

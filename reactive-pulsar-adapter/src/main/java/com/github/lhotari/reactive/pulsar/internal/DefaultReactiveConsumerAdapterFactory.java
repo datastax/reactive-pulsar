@@ -8,6 +8,7 @@ import org.apache.pulsar.client.api.ConsumerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 
 class DefaultReactiveConsumerAdapterFactory implements ReactiveConsumerAdapterFactory {
+
     private final Supplier<PulsarClient> pulsarClientSupplier;
 
     DefaultReactiveConsumerAdapterFactory(Supplier<PulsarClient> pulsarClientSupplier) {

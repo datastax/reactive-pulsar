@@ -4,6 +4,7 @@ import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageHandler;
 import org.springframework.context.SmartLifecycle;
 
 public abstract class AbstractReactiveMessageListenerContainer implements SmartLifecycle {
+
     private ReactiveMessageHandler reactiveMessageHandler;
 
     protected abstract ReactiveMessageHandler createReactiveMessageHandler();

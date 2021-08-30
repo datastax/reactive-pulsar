@@ -33,6 +33,7 @@ public class SingletonPulsarContainer {
     }
 
     public static class ContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
         @Override
         public void initialize(ConfigurableApplicationContext applicationContext) {
             Map<String, Object> applicationProperties = new HashMap<>();
@@ -42,20 +43,22 @@ public class SingletonPulsarContainer {
         }
     }
 
-    private static final String PULSAR_CONTAINER_IMAGE = System.getenv().getOrDefault("PULSAR_CONTAINER_IMAGE",
-            "apachepulsar/pulsar:2.8.0");
+    private static final String PULSAR_CONTAINER_IMAGE = System
+        .getenv()
+        .getOrDefault("PULSAR_CONTAINER_IMAGE", "apachepulsar/pulsar:2.8.0");
     public static SingletonPulsarContainer INSTANCE = new SingletonPulsarContainer();
 
     private final PulsarContainer pulsarContainer = new PulsarContainer(
-            DockerImageName.parse(PULSAR_CONTAINER_IMAGE)
-                    .asCompatibleSubstituteFor("apachepulsar/pulsar")) {
+        DockerImageName.parse(PULSAR_CONTAINER_IMAGE).asCompatibleSubstituteFor("apachepulsar/pulsar")
+    ) {
         @Override
         protected void configure() {
             super.configure();
             new WaitAllStrategy()
-                    .withStrategy(waitStrategy)
-                    .withStrategy(Wait.forHttp("/admin/v2/namespaces/public/default")
-                            .forPort(PulsarContainer.BROKER_HTTP_PORT));
+                .withStrategy(waitStrategy)
+                .withStrategy(
+                    Wait.forHttp("/admin/v2/namespaces/public/default").forPort(PulsarContainer.BROKER_HTTP_PORT)
+                );
             withLabel("reactive-pulsar.container", "true");
             // enable container reuse feature
             withReuse(true);
@@ -76,11 +79,9 @@ public class SingletonPulsarContainer {
     }
 
     private void registerPulsarProperties(DynamicPropertyRegistry registry) {
-        registry.add("pulsar.client.serviceUrl",
-                pulsarContainer::getPulsarBrokerUrl);
+        registry.add("pulsar.client.serviceUrl", pulsarContainer::getPulsarBrokerUrl);
         // TODO: this property is currently unused
-        registry.add("pulsar.admin.serviceHttpUrl",
-                pulsarContainer::getHttpServiceUrl);
+        registry.add("pulsar.admin.serviceHttpUrl", pulsarContainer::getHttpServiceUrl);
     }
 
     private void registerTestTopicPrefix(DynamicPropertyRegistry registry) {

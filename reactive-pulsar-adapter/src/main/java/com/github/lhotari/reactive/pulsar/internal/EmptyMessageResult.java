@@ -4,6 +4,7 @@ import com.github.lhotari.reactive.pulsar.adapter.MessageResult;
 import org.apache.pulsar.client.api.MessageId;
 
 class EmptyMessageResult implements MessageResult<Void> {
+
     private final MessageId messageId;
     private final boolean acknowledgeMessage;
 

@@ -8,6 +8,7 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.ReaderBuilder;
 
 class DefaultReactiveReaderAdapterFactory implements ReactiveReaderAdapterFactory {
+
     private final Supplier<PulsarClient> pulsarClientSupplier;
 
     public DefaultReactiveReaderAdapterFactory(Supplier<PulsarClient> pulsarClientSupplier) {

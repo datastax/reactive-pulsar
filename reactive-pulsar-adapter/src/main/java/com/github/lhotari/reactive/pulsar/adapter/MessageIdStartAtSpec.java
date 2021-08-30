@@ -4,6 +4,7 @@ import java.util.Objects;
 import org.apache.pulsar.client.api.MessageId;
 
 public final class MessageIdStartAtSpec extends StartAtSpec {
+
     private final MessageId messageId;
     private final boolean inclusive;
 
@@ -29,7 +30,7 @@ public final class MessageIdStartAtSpec extends StartAtSpec {
             return false;
         }
         MessageIdStartAtSpec that = (MessageIdStartAtSpec) o;
-        return inclusive == that.inclusive && Objects.equals(messageId, that.messageId);
+        return (inclusive == that.inclusive && Objects.equals(messageId, that.messageId));
     }
 
     @Override
@@ -39,9 +40,6 @@ public final class MessageIdStartAtSpec extends StartAtSpec {
 
     @Override
     public String toString() {
-        return "MessageIdStartAtSpec{" +
-                "messageId=" + messageId +
-                ", inclusive=" + inclusive +
-                '}';
+        return ("MessageIdStartAtSpec{" + "messageId=" + messageId + ", inclusive=" + inclusive + '}');
     }
 }

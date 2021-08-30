@@ -18,6 +18,7 @@ import reactor.core.scheduler.Schedulers;
 import reactor.util.context.Context;
 
 public class InflightLimiter implements PublisherTransformer {
+
     private static final Logger LOG = LoggerFactory.getLogger(InflightLimiter.class);
     MpmcArrayQueue<InflightLimiterSubscriber<?>> pendingSubscriptions = new MpmcArrayQueue<>(1024);
     private final AtomicInteger inflight = new AtomicInteger();
@@ -30,8 +31,7 @@ public class InflightLimiter implements PublisherTransformer {
         this(maxInflight, maxInflight, Schedulers.single());
     }
 
-    public InflightLimiter(int maxInflight, int maxSubscriptionInflight,
-                           Scheduler triggerNextScheduler) {
+    public InflightLimiter(int maxInflight, int maxSubscriptionInflight, Scheduler triggerNextScheduler) {
         this.maxInflight = maxInflight;
         this.maxSubscriptionInflight = maxSubscriptionInflight;
         this.triggerNextWorker = triggerNextScheduler.createWorker();
@@ -104,6 +104,7 @@ public class InflightLimiter implements PublisherTransformer {
     }
 
     private class InflightLimiterSubscriber<I> extends BaseSubscriber<I> {
+
         private final CoreSubscriber<? super I> actual;
         private AtomicLong requestedDemand = new AtomicLong();
         private final Subscription subscription = new Subscription() {
@@ -131,9 +132,7 @@ public class InflightLimiter implements PublisherTransformer {
         }
 
         @Override
-        protected void hookOnSubscribe(Subscription subscription) {
-
-        }
+        protected void hookOnSubscribe(Subscription subscription) {}
 
         @Override
         protected void hookOnNext(I value) {
@@ -177,15 +176,21 @@ public class InflightLimiter implements PublisherTransformer {
         }
 
         void requestMore() {
-            if (requestedDemand.get() > 0 &&
-                    inflightForSubscription.get() <= maxSubscriptionInflight / 2 &&
-                    inflight.get() < maxInflight) {
+            if (
+                requestedDemand.get() > 0 &&
+                inflightForSubscription.get() <= maxSubscriptionInflight / 2 &&
+                inflight.get() < maxInflight
+            ) {
                 long maxRequest = Math.max(
-                        Math.min(Math.min(Math.min(requestedDemand.get(),
-                                                maxInflight - inflight.get()),
-                                        maxSubscriptionInflight - inflightForSubscription.get()),
-                                maxInflight / activeSubscriptions.get()),
-                        1);
+                    Math.min(
+                        Math.min(
+                            Math.min(requestedDemand.get(), maxInflight - inflight.get()),
+                            maxSubscriptionInflight - inflightForSubscription.get()
+                        ),
+                        maxInflight / activeSubscriptions.get()
+                    ),
+                    1
+                );
                 inflight.addAndGet((int) maxRequest);
                 requestedDemand.addAndGet(-maxRequest);
                 inflightForSubscription.addAndGet((int) maxRequest);

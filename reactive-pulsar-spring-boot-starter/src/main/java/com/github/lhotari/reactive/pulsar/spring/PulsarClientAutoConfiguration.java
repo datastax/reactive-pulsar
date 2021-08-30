@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Lazy;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(PulsarClientConfig.class)
 public class PulsarClientAutoConfiguration {
+
     @Lazy
     @Bean
     @ConditionalOnMissingBean
@@ -22,9 +23,9 @@ public class PulsarClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    PulsarTopicNameResolver pulsarTopicNameResolver(@Value("${pulsar.topicNamePrefix:persistent://public/default/}")
-                                                            String pulsarTopicPrefix) {
+    PulsarTopicNameResolver pulsarTopicNameResolver(
+        @Value("${pulsar.topicNamePrefix:persistent://public/default/}") String pulsarTopicPrefix
+    ) {
         return new DefaultPulsarTopicNameResolver(pulsarTopicPrefix);
     }
-
 }

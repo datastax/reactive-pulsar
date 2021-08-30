@@ -128,6 +128,5 @@ public interface MessageSpecBuilder<T> {
      */
     MessageSpecBuilder<T> deliverAfter(long delay, TimeUnit unit);
 
-
     MessageSpec<T> build();
 }

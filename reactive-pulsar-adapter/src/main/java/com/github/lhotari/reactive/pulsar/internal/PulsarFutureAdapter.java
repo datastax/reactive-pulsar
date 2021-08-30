@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
  * when the Mono has been cancelled. This is to reduce unnecessary exceptions in logs.
  */
 class PulsarFutureAdapter {
+
     private volatile boolean cancelled;
     private volatile CompletableFuture<?> futureReference;
 
@@ -23,13 +24,10 @@ class PulsarFutureAdapter {
         return Mono.defer(() -> new PulsarFutureAdapter().toMono(futureSupplier));
     }
 
-    private PulsarFutureAdapter() {
-
-    }
+    private PulsarFutureAdapter() {}
 
     <T> Mono<? extends T> toMono(Supplier<? extends CompletableFuture<T>> futureSupplier) {
-        return Mono.fromFuture(() -> createFuture(futureSupplier))
-                .doOnCancel(this::doOnCancel);
+        return Mono.fromFuture(() -> createFuture(futureSupplier)).doOnCancel(this::doOnCancel);
     }
 
     private <T> CompletableFuture<T> createFuture(Supplier<? extends CompletableFuture<T>> futureSupplier) {
@@ -63,8 +61,10 @@ class PulsarFutureAdapter {
     }
 
     private static boolean isAlreadyClosedCause(Throwable e) {
-        return e instanceof PulsarClientException.AlreadyClosedException ||
-                e.getCause() instanceof PulsarClientException.AlreadyClosedException;
+        return (
+            e instanceof PulsarClientException.AlreadyClosedException ||
+            e.getCause() instanceof PulsarClientException.AlreadyClosedException
+        );
     }
 
     private static void rethrowIfRelevantException(Throwable e) {

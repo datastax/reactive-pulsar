@@ -1,6 +1,7 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import com.github.lhotari.reactive.pulsar.producercache.CaffeineReactiveProducerCache;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -19,21 +20,20 @@ public class ReactiveMessageSenderE2ETest {
     void shouldSendMessageToTopic() throws PulsarClientException {
         try (PulsarClient pulsarClient = SingletonPulsarContainer.createPulsarClient()) {
             String topicName = "test" + UUID.randomUUID();
-            Consumer<String> consumer = pulsarClient.newConsumer(Schema.STRING)
-                    .topic(topicName)
-                    .subscriptionName("sub")
-                    .subscribe();
+            Consumer<String> consumer = pulsarClient
+                .newConsumer(Schema.STRING)
+                .topic(topicName)
+                .subscriptionName("sub")
+                .subscribe();
 
             ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
 
             ReactiveMessageSender<String> messageSender = reactivePulsarClient
-                    .messageSender(Schema.STRING)
-                    .topic(topicName)
-                    .maxInflight(1)
-                    .build();
-            MessageId messageId = messageSender
-                    .sendMessage(Mono.just(MessageSpec.of("Hello world!")))
-                    .block();
+                .messageSender(Schema.STRING)
+                .topic(topicName)
+                .maxInflight(1)
+                .build();
+            MessageId messageId = messageSender.sendMessage(Mono.just(MessageSpec.of("Hello world!"))).block();
             assertThat(messageId).isNotNull();
 
             Message<String> message = consumer.receive(1, TimeUnit.SECONDS);
@@ -44,25 +44,26 @@ public class ReactiveMessageSenderE2ETest {
 
     @Test
     void shouldSendMessageToTopicWithCachedProducer() throws PulsarClientException {
-        try (PulsarClient pulsarClient = SingletonPulsarContainer.createPulsarClient();
-             CaffeineReactiveProducerCache producerCache = new CaffeineReactiveProducerCache()) {
+        try (
+            PulsarClient pulsarClient = SingletonPulsarContainer.createPulsarClient();
+            CaffeineReactiveProducerCache producerCache = new CaffeineReactiveProducerCache()
+        ) {
             String topicName = "test" + UUID.randomUUID();
-            Consumer<String> consumer = pulsarClient.newConsumer(Schema.STRING)
-                    .topic(topicName)
-                    .subscriptionName("sub")
-                    .subscribe();
+            Consumer<String> consumer = pulsarClient
+                .newConsumer(Schema.STRING)
+                .topic(topicName)
+                .subscriptionName("sub")
+                .subscribe();
 
             ReactivePulsarClient reactivePulsarClient = ReactivePulsarClient.create(pulsarClient);
 
             ReactiveMessageSender<String> messageSender = reactivePulsarClient
-                    .messageSender(Schema.STRING)
-                    .cache(producerCache)
-                    .maxInflight(1)
-                    .topic(topicName)
-                    .build();
-            MessageId messageId = messageSender
-                    .sendMessage(Mono.just(MessageSpec.of("Hello world!")))
-                    .block();
+                .messageSender(Schema.STRING)
+                .cache(producerCache)
+                .maxInflight(1)
+                .topic(topicName)
+                .build();
+            MessageId messageId = messageSender.sendMessage(Mono.just(MessageSpec.of("Hello world!"))).block();
             assertThat(messageId).isNotNull();
 
             Message<String> message = consumer.receive(1, TimeUnit.SECONDS);

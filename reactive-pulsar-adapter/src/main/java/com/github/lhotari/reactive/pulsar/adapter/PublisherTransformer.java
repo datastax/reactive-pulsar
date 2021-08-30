@@ -7,9 +7,7 @@ public interface PublisherTransformer extends Disposable {
     static PublisherTransformer identity() {
         return new PublisherTransformer() {
             @Override
-            public void dispose() {
-
-            }
+            public void dispose() {}
 
             @Override
             public <T> Publisher<T> transform(Publisher<T> publisher) {

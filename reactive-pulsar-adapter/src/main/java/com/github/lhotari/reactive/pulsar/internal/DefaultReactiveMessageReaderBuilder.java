@@ -9,6 +9,7 @@ import com.github.lhotari.reactive.pulsar.adapter.StartAtSpec;
 import org.apache.pulsar.client.api.Schema;
 
 class DefaultReactiveMessageReaderBuilder<T> implements ReactiveMessageReaderBuilder<T> {
+
     private final ReactiveReaderAdapterFactory reactiveReaderAdapterFactory;
     private final Schema<T> schema;
     private ReaderConfigurer<T> readerConfigurer;
@@ -16,8 +17,10 @@ class DefaultReactiveMessageReaderBuilder<T> implements ReactiveMessageReaderBui
     private StartAtSpec startAtSpec = StartAtSpec.ofEarliest();
     private EndOfStreamAction endOfStreamAction = EndOfStreamAction.COMPLETE;
 
-    public DefaultReactiveMessageReaderBuilder(Schema<T> schema,
-                                               ReactiveReaderAdapterFactory reactiveReaderAdapterFactory) {
+    public DefaultReactiveMessageReaderBuilder(
+        Schema<T> schema,
+        ReactiveReaderAdapterFactory reactiveReaderAdapterFactory
+    ) {
         this.reactiveReaderAdapterFactory = reactiveReaderAdapterFactory;
         this.schema = schema;
     }
@@ -48,8 +51,10 @@ class DefaultReactiveMessageReaderBuilder<T> implements ReactiveMessageReaderBui
 
     @Override
     public ReactiveMessageReaderBuilder<T> clone() {
-        DefaultReactiveMessageReaderBuilder<T> cloned = new DefaultReactiveMessageReaderBuilder<>(schema,
-                reactiveReaderAdapterFactory);
+        DefaultReactiveMessageReaderBuilder<T> cloned = new DefaultReactiveMessageReaderBuilder<>(
+            schema,
+            reactiveReaderAdapterFactory
+        );
         cloned.readerConfigurer = this.readerConfigurer;
         cloned.topicName = this.topicName;
         cloned.startAtSpec = this.startAtSpec;
@@ -59,7 +64,13 @@ class DefaultReactiveMessageReaderBuilder<T> implements ReactiveMessageReaderBui
 
     @Override
     public ReactiveMessageReader<T> build() {
-        return new DefaultReactiveMessageReader<>(reactiveReaderAdapterFactory, schema, readerConfigurer, topicName,
-                startAtSpec, endOfStreamAction);
+        return new DefaultReactiveMessageReader<>(
+            reactiveReaderAdapterFactory,
+            schema,
+            readerConfigurer,
+            topicName,
+            startAtSpec,
+            endOfStreamAction
+        );
     }
 }

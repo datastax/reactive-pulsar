@@ -4,16 +4,12 @@ import java.time.Instant;
 import org.apache.pulsar.client.api.MessageId;
 
 public abstract class StartAtSpec {
-    private static final MessageIdStartAtSpec EARLIEST =
-            ofMessageId(MessageId.earliest, true);
-    private static final MessageIdStartAtSpec LATEST =
-            ofMessageId(MessageId.latest, false);
-    private static final MessageIdStartAtSpec LATEST_INCLUSIVE =
-            ofMessageId(MessageId.latest, true);
 
-    StartAtSpec() {
+    private static final MessageIdStartAtSpec EARLIEST = ofMessageId(MessageId.earliest, true);
+    private static final MessageIdStartAtSpec LATEST = ofMessageId(MessageId.latest, false);
+    private static final MessageIdStartAtSpec LATEST_INCLUSIVE = ofMessageId(MessageId.latest, true);
 
-    }
+    StartAtSpec() {}
 
     public static MessageIdStartAtSpec ofEarliest() {
         return EARLIEST;
@@ -38,5 +34,4 @@ public abstract class StartAtSpec {
     public static InstantStartAtSpec ofInstant(Instant instant) {
         return new InstantStartAtSpec(instant);
     }
-
 }

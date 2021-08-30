@@ -12,6 +12,7 @@ import org.apache.pulsar.client.api.Schema;
 import reactor.core.scheduler.Schedulers;
 
 class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBuilder<T> {
+
     private final Schema<T> schema;
     private final Supplier<ReactiveProducerAdapterFactory> reactiveProducerAdapterFactorySupplier;
     private ProducerConfigurer<T> producerConfigurer;
@@ -20,8 +21,10 @@ class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
     private int maxInflight = 100;
     private Supplier<PublisherTransformer> producerActionTransformer = PublisherTransformer::identity;
 
-    public DefaultReactiveMessageSenderBuilder(Schema<T> schema,
-                                               Supplier<ReactiveProducerAdapterFactory> reactiveProducerAdapterFactorySupplier) {
+    public DefaultReactiveMessageSenderBuilder(
+        Schema<T> schema,
+        Supplier<ReactiveProducerAdapterFactory> reactiveProducerAdapterFactorySupplier
+    ) {
         this.schema = schema;
         this.reactiveProducerAdapterFactorySupplier = reactiveProducerAdapterFactorySupplier;
     }
@@ -48,7 +51,7 @@ class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
     public ReactiveMessageSenderBuilder<T> maxInflight(int maxInflight) {
         this.maxInflight = maxInflight;
         producerActionTransformer =
-                () -> new InflightLimiter(maxInflight, Math.max(maxInflight / 2, 1), Schedulers.single());
+            () -> new InflightLimiter(maxInflight, Math.max(maxInflight / 2, 1), Schedulers.single());
         return this;
     }
 
@@ -57,7 +60,12 @@ class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
         ReactiveProducerAdapterFactory reactiveProducerAdapterFactory = reactiveProducerAdapterFactorySupplier.get();
         reactiveProducerAdapterFactory.cache(producerCache);
         reactiveProducerAdapterFactory.producerActionTransformer(producerActionTransformer);
-        return new DefaultReactiveMessageSender<>(schema, producerConfigurer, topicName, maxInflight,
-                reactiveProducerAdapterFactory);
+        return new DefaultReactiveMessageSender<>(
+            schema,
+            producerConfigurer,
+            topicName,
+            maxInflight,
+            reactiveProducerAdapterFactory
+        );
     }
 }

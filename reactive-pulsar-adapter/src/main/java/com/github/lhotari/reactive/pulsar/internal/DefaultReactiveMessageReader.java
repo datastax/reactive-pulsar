@@ -1,6 +1,7 @@
 package com.github.lhotari.reactive.pulsar.internal;
 
 import static com.github.lhotari.reactive.pulsar.internal.PulsarFutureAdapter.adaptPulsarFuture;
+
 import com.github.lhotari.reactive.pulsar.adapter.EndOfStreamAction;
 import com.github.lhotari.reactive.pulsar.adapter.InstantStartAtSpec;
 import com.github.lhotari.reactive.pulsar.adapter.MessageIdStartAtSpec;
@@ -22,6 +23,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 class DefaultReactiveMessageReader<T> implements ReactiveMessageReader<T> {
+
     private final Schema<T> schema;
     private final ReaderConfigurer<T> readerConfigurer;
     private final String topicName;
@@ -29,10 +31,14 @@ class DefaultReactiveMessageReader<T> implements ReactiveMessageReader<T> {
     private final StartAtSpec startAtSpec;
     private final EndOfStreamAction endOfStreamAction;
 
-    public DefaultReactiveMessageReader(ReactiveReaderAdapterFactory reactiveReaderAdapterFactory, Schema<T> schema,
-                                        ReaderConfigurer<T> readerConfigurer, String topicName,
-                                        StartAtSpec startAtSpec,
-                                        EndOfStreamAction endOfStreamAction) {
+    public DefaultReactiveMessageReader(
+        ReactiveReaderAdapterFactory reactiveReaderAdapterFactory,
+        Schema<T> schema,
+        ReaderConfigurer<T> readerConfigurer,
+        String topicName,
+        StartAtSpec startAtSpec,
+        EndOfStreamAction endOfStreamAction
+    ) {
         this.schema = schema;
         this.readerConfigurer = readerConfigurer;
         this.topicName = topicName;
@@ -61,7 +67,7 @@ class DefaultReactiveMessageReader<T> implements ReactiveMessageReader<T> {
                 } else {
                     InstantStartAtSpec instantStartAtSpec = (InstantStartAtSpec) startAtSpec;
                     long rollbackDuration =
-                            ChronoUnit.SECONDS.between(instantStartAtSpec.getInstant(), Instant.now()) + 1L;
+                        ChronoUnit.SECONDS.between(instantStartAtSpec.getInstant(), Instant.now()) + 1L;
                     if (rollbackDuration < 0L) {
                         throw new IllegalArgumentException("InstantStartAtSpec must be in the past.");
                     }
@@ -79,8 +85,8 @@ class DefaultReactiveMessageReader<T> implements ReactiveMessageReader<T> {
         Mono<Message<T>> messageMono = adaptPulsarFuture(reader::readNextAsync);
         if (endOfStreamAction == EndOfStreamAction.COMPLETE) {
             return adaptPulsarFuture(reader::hasMessageAvailableAsync)
-                    .filter(Boolean::booleanValue)
-                    .flatMap((__) -> messageMono);
+                .filter(Boolean::booleanValue)
+                .flatMap(__ -> messageMono);
         } else {
             return messageMono;
         }
@@ -89,18 +95,18 @@ class DefaultReactiveMessageReader<T> implements ReactiveMessageReader<T> {
     @Override
     public Mono<Message<T>> readMessage() {
         return createReactiveReaderAdapter(startAtSpec)
-                .usingReader(reader -> readNextMessage(reader, endOfStreamAction));
+            .usingReader(reader -> readNextMessage(reader, endOfStreamAction));
     }
 
     @Override
     public Flux<Message<T>> readMessages() {
         return createReactiveReaderAdapter(startAtSpec)
-                .usingReaderMany(reader -> {
-                    Mono<Message<T>> messageMono = readNextMessage(reader, endOfStreamAction);
-                    if (endOfStreamAction == EndOfStreamAction.COMPLETE) {
-                        return messageMono.repeatWhen(flux -> flux.takeWhile(emitted -> emitted > 0L));
-                    }
-                    return messageMono.repeat();
-                });
+            .usingReaderMany(reader -> {
+                Mono<Message<T>> messageMono = readNextMessage(reader, endOfStreamAction);
+                if (endOfStreamAction == EndOfStreamAction.COMPLETE) {
+                    return messageMono.repeatWhen(flux -> flux.takeWhile(emitted -> emitted > 0L));
+                }
+                return messageMono.repeat();
+            });
     }
 }
