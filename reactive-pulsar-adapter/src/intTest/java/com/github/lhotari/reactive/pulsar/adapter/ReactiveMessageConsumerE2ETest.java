@@ -51,9 +51,7 @@ public class ReactiveMessageConsumerE2ETest {
 
             // should have acknowledged all messages
             List<Message<String>> remainingMessages = messageConsumer
-                .consumeMessages(messageFlux ->
-                    messageFlux.map(message -> MessageResult.acknowledge(message.getMessageId(), message))
-                )
+                .consumeMessages(messageFlux -> messageFlux.map(MessageResult::acknowledgeAndReturn))
                 .take(Duration.ofSeconds(2))
                 .collectList()
                 .block();
