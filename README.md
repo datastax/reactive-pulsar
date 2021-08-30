@@ -96,7 +96,7 @@ ReactiveMessageSender<String> messageSender = reactivePulsarClient
         .messageSender(Schema.STRING)
         .topic(topicName)
         .maxInflight(100)
-        .create();
+        .build();
 Mono<MessageId> messageId = messageSender
         .sendMessage(Mono.just(MessageSpec.of("Hello world!")));
 // for demonstration
@@ -139,7 +139,7 @@ ReactiveMessageSender<String> messageSender = reactivePulsarClient
         .cache(producerCache)
         .topic(topicName)
         .maxInflight(100)
-        .create();
+        .build();
 Mono<MessageId> messageId = messageSender
         .sendMessage(Mono.just(MessageSpec.of("Hello world!")));
 // for demonstration
@@ -159,7 +159,7 @@ Reading all messages for a topic:
     ReactiveMessageReader<String> messageReader =
             reactivePulsarClient.messageReader(Schema.STRING)
                     .topic(topicName)
-                    .create();
+                    .build();
     messageReader.readMessages()
             .map(Message::getValue)
             // for demonstration
@@ -180,7 +180,7 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
                     .topic(topicName)
                     .startAtSpec(StartAtSpec.LATEST)
                     .endOfStreamAction(EndOfStreamAction.POLL)
-                    .create();
+                    .build();
     messageReader.readMessages()
             .take(Duration.ofSeconds(5))
             .take(5)
@@ -196,7 +196,7 @@ With `.endOfStreamAction(EndOfStreamAction.POLL)` the Reader will poll for new m
         reactivePulsarClient.messageConsumer(Schema.STRING)
         .topic(topicName)
         .consumerConfigurer(consumerBuilder->consumerBuilder.subscriptionName("sub"))
-        .create();
+        .build();
     messageConsumer.consumeMessages(messageFlux ->
                     messageFlux.map(message ->
                             MessageResult.acknowledge(message.getMessageId(), message.getValue())))
@@ -215,7 +215,7 @@ ReactiveMessageHandler reactiveMessageHandler=
            .consumerConfigurer(consumerBuilder->
              consumerBuilder.subscriptionName("sub")
             .topic(topicName))
-            .create())
+            .build())
         .messageHandler(message -> Mono.fromRunnable(()->{
             System.out.println(message.getValue());
         }))
