@@ -12,6 +12,7 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -66,9 +67,15 @@ public class ReactiveMessageHandlerE2ETest {
         }
     }
 
+    enum MessageOrderScenario {
+        NO_PARALLEL,
+        PARALLEL_PASS_KEY_IN_ORDERINGKEY,
+        PARALLEL_PASS_KEY_IN_MESSAGEKEY
+    }
+
     @ParameterizedTest
-    @ValueSource(booleans = { false, true })
-    void shouldRetainMessageOrder(boolean parallelize) throws Exception {
+    @EnumSource(MessageOrderScenario.class)
+    void shouldRetainMessageOrder(MessageOrderScenario messageOrderScenario) throws Exception {
         try (PulsarClient pulsarClient = SingletonPulsarContainer.createPulsarClient()) {
             String topicName = "test" + UUID.randomUUID();
             // create subscription to retain messages
@@ -81,7 +88,9 @@ public class ReactiveMessageHandlerE2ETest {
                 .topic(topicName)
                 .build();
 
-            List<MessageSpec<Integer>> messageSpecs = generateRandomOrderedMessagesWhereSingleKeyIsOrdered();
+            List<MessageSpec<Integer>> messageSpecs = generateRandomOrderedMessagesWhereSingleKeyIsOrdered(
+                messageOrderScenario
+            );
 
             messageSender.sendMessages(Flux.fromIterable(messageSpecs)).blockLast();
 
@@ -115,14 +124,14 @@ public class ReactiveMessageHandlerE2ETest {
                         );
                         latch.countDown();
                     });
-                    if (parallelize) {
-                        // add 10 millisecond delay which would lead to the execution timeout unless
+                    if (messageOrderScenario != MessageOrderScenario.NO_PARALLEL) {
+                        // add delay which would lead to the execution timeout unless
                         // messages are handled in parallel
-                        messageHandler = Mono.delay(Duration.ofMillis(10)).then(messageHandler);
+                        messageHandler = Mono.delay(Duration.ofMillis(5)).then(messageHandler);
                     }
                     return messageHandler;
                 });
-            if (parallelize) {
+            if (messageOrderScenario != MessageOrderScenario.NO_PARALLEL) {
                 reactiveMessageHandlerBuilder.concurrent().concurrency(KEYS_COUNT).keyOrdered(true);
             }
             try (ReactiveMessageHandler reactiveMessageHandler = reactiveMessageHandlerBuilder.build().start()) {
@@ -135,19 +144,32 @@ public class ReactiveMessageHandlerE2ETest {
         }
     }
 
-    private List<MessageSpec<Integer>> generateRandomOrderedMessagesWhereSingleKeyIsOrdered() {
+    private List<MessageSpec<Integer>> generateRandomOrderedMessagesWhereSingleKeyIsOrdered(
+        final MessageOrderScenario messageOrderScenario
+    ) {
         List<Queue<MessageSpec<Integer>>> remainingMessages = Flux
             .range(1, KEYS_COUNT)
             .concatMap(keyId -> {
+                String keyIdString = keyId.toString();
                 byte[] keyBytes = ByteBuffer.allocate(4).putInt(keyId).array();
                 return Flux
                     .range(1, ITEMS_PER_KEY_COUNT)
-                    .map(i ->
-                        Tuples.of(
-                            keyId,
-                            MessageSpec.builder(i).orderingKey(keyBytes).property("keyId", keyId.toString()).build()
-                        )
-                    );
+                    .map(i -> {
+                        MessageSpecBuilder<Integer> messageSpecBuilder = MessageSpec
+                            .builder(i)
+                            .property("keyId", keyIdString);
+                        switch (messageOrderScenario) {
+                            case PARALLEL_PASS_KEY_IN_MESSAGEKEY:
+                                messageSpecBuilder.key(keyIdString);
+                                break;
+                            case PARALLEL_PASS_KEY_IN_ORDERINGKEY:
+                                messageSpecBuilder.orderingKey(keyBytes);
+                                break;
+                            case NO_PARALLEL:
+                                break;
+                        }
+                        return Tuples.of(keyId, messageSpecBuilder.build());
+                    });
             })
             .collectMultimap(Tuple2::getT1, Tuple2::getT2)
             .map(Map::values)
