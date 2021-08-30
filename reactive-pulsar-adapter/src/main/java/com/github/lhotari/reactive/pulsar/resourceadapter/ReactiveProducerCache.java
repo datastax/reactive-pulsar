@@ -6,6 +6,11 @@ import org.apache.pulsar.client.api.Producer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Producer cache implementations must implement this interface. There's a sample implementation in the
+ * reactive-pulsar-caffeine-producer-cache which uses Caffeine.
+ * This interface is not intended to be used by application code directly.
+ */
 public interface ReactiveProducerCache {
     <T, R> Mono<R> usingCachedProducer(
         ProducerCacheKey cacheKey,
