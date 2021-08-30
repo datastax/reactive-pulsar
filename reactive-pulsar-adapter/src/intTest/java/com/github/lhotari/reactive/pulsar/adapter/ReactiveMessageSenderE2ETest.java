@@ -30,7 +30,7 @@ public class ReactiveMessageSenderE2ETest {
                     .messageSender(Schema.STRING)
                     .topic(topicName)
                     .maxInflight(1)
-                    .create();
+                    .build();
             MessageId messageId = messageSender
                     .sendMessage(Mono.just(MessageSpec.of("Hello world!")))
                     .block();
@@ -59,7 +59,7 @@ public class ReactiveMessageSenderE2ETest {
                     .cache(producerCache)
                     .maxInflight(1)
                     .topic(topicName)
-                    .create();
+                    .build();
             MessageId messageId = messageSender
                     .sendMessage(Mono.just(MessageSpec.of("Hello world!")))
                     .block();

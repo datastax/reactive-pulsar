@@ -2,13 +2,13 @@ package com.github.lhotari.reactive.pulsar.internal;
 
 import com.github.lhotari.reactive.pulsar.adapter.EndOfStreamAction;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageReader;
-import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageReaderFactory;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageReaderBuilder;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveReaderAdapterFactory;
 import com.github.lhotari.reactive.pulsar.adapter.ReaderConfigurer;
 import com.github.lhotari.reactive.pulsar.adapter.StartAtSpec;
 import org.apache.pulsar.client.api.Schema;
 
-class DefaultReactiveMessageReaderFactory<T> implements ReactiveMessageReaderFactory<T> {
+class DefaultReactiveMessageReaderBuilder<T> implements ReactiveMessageReaderBuilder<T> {
     private final ReactiveReaderAdapterFactory reactiveReaderAdapterFactory;
     private final Schema<T> schema;
     private ReaderConfigurer<T> readerConfigurer;
@@ -16,39 +16,39 @@ class DefaultReactiveMessageReaderFactory<T> implements ReactiveMessageReaderFac
     private StartAtSpec startAtSpec = StartAtSpec.ofEarliest();
     private EndOfStreamAction endOfStreamAction = EndOfStreamAction.COMPLETE;
 
-    public DefaultReactiveMessageReaderFactory(Schema<T> schema,
+    public DefaultReactiveMessageReaderBuilder(Schema<T> schema,
                                                ReactiveReaderAdapterFactory reactiveReaderAdapterFactory) {
         this.reactiveReaderAdapterFactory = reactiveReaderAdapterFactory;
         this.schema = schema;
     }
 
     @Override
-    public ReactiveMessageReaderFactory<T> readerConfigurer(ReaderConfigurer<T> readerConfigurer) {
+    public ReactiveMessageReaderBuilder<T> readerConfigurer(ReaderConfigurer<T> readerConfigurer) {
         this.readerConfigurer = readerConfigurer;
         return this;
     }
 
     @Override
-    public ReactiveMessageReaderFactory<T> topic(String topicName) {
+    public ReactiveMessageReaderBuilder<T> topic(String topicName) {
         this.topicName = topicName;
         return this;
     }
 
     @Override
-    public ReactiveMessageReaderFactory<T> startAtSpec(StartAtSpec startAtSpec) {
+    public ReactiveMessageReaderBuilder<T> startAtSpec(StartAtSpec startAtSpec) {
         this.startAtSpec = startAtSpec;
         return this;
     }
 
     @Override
-    public ReactiveMessageReaderFactory<T> endOfStreamAction(EndOfStreamAction endOfStreamAction) {
+    public ReactiveMessageReaderBuilder<T> endOfStreamAction(EndOfStreamAction endOfStreamAction) {
         this.endOfStreamAction = endOfStreamAction;
         return this;
     }
 
     @Override
-    public ReactiveMessageReaderFactory<T> clone() {
-        DefaultReactiveMessageReaderFactory<T> cloned = new DefaultReactiveMessageReaderFactory<>(schema,
+    public ReactiveMessageReaderBuilder<T> clone() {
+        DefaultReactiveMessageReaderBuilder<T> cloned = new DefaultReactiveMessageReaderBuilder<>(schema,
                 reactiveReaderAdapterFactory);
         cloned.readerConfigurer = this.readerConfigurer;
         cloned.topicName = this.topicName;
@@ -58,7 +58,7 @@ class DefaultReactiveMessageReaderFactory<T> implements ReactiveMessageReaderFac
     }
 
     @Override
-    public ReactiveMessageReader<T> create() {
+    public ReactiveMessageReader<T> build() {
         return new DefaultReactiveMessageReader<>(reactiveReaderAdapterFactory, schema, readerConfigurer, topicName,
                 startAtSpec, endOfStreamAction);
     }

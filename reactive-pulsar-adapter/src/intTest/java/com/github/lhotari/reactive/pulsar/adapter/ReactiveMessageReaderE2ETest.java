@@ -31,7 +31,7 @@ public class ReactiveMessageReaderE2ETest {
                     .messageSender(Schema.STRING)
                     .cache(producerCache)
                     .topic(topicName)
-                    .create();
+                    .build();
             messageSender.sendMessages(Flux.range(1, 100)
                             .map(Object::toString)
                             .map(MessageSpec::of))
@@ -40,7 +40,7 @@ public class ReactiveMessageReaderE2ETest {
             ReactiveMessageReader<String> messageReader =
                     reactivePulsarClient.messageReader(Schema.STRING)
                             .topic(topicName)
-                            .create();
+                            .build();
             List<String> messages = messageReader.readMessages()
                     .map(Message::getValue).collectList().block();
 

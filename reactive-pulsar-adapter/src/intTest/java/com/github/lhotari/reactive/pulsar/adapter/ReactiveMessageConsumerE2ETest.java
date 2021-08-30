@@ -32,7 +32,7 @@ public class ReactiveMessageConsumerE2ETest {
                     .messageSender(Schema.STRING)
                     .cache(producerCache)
                     .topic(topicName)
-                    .create();
+                    .build();
             messageSender.sendMessages(Flux.range(1, 100)
                             .map(Object::toString)
                             .map(MessageSpec::of))
@@ -42,7 +42,7 @@ public class ReactiveMessageConsumerE2ETest {
                     reactivePulsarClient.messageConsumer(Schema.STRING)
                             .topic(topicName)
                             .consumerConfigurer(consumerBuilder -> consumerBuilder.subscriptionName("sub"))
-                            .create();
+                            .build();
             List<String> messages = messageConsumer.consumeMessages(messageFlux ->
                             messageFlux.map(message -> MessageResult.acknowledge(message.getMessageId(),
                                     message.getValue())))

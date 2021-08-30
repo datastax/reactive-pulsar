@@ -1,8 +1,8 @@
 package com.github.lhotari.reactive.pulsar.internal;
 
-import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumerFactory;
-import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageReaderFactory;
-import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSenderFactory;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumerBuilder;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageReaderBuilder;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSenderBuilder;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarAdapter;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;
 import org.apache.pulsar.client.api.Schema;
@@ -15,17 +15,17 @@ class DefaultReactivePulsarClient implements ReactivePulsarClient {
     }
 
     @Override
-    public <T> ReactiveMessageReaderFactory<T> messageReader(Schema<T> schema) {
-        return new DefaultReactiveMessageReaderFactory<>(schema, reactivePulsarAdapter.reader());
+    public <T> ReactiveMessageReaderBuilder<T> messageReader(Schema<T> schema) {
+        return new DefaultReactiveMessageReaderBuilder<>(schema, reactivePulsarAdapter.reader());
     }
 
     @Override
-    public <T> ReactiveMessageSenderFactory<T> messageSender(Schema<T> schema) {
-        return new DefaultReactiveMessageSenderFactory<>(schema, reactivePulsarAdapter::producer);
+    public <T> ReactiveMessageSenderBuilder<T> messageSender(Schema<T> schema) {
+        return new DefaultReactiveMessageSenderBuilder<>(schema, reactivePulsarAdapter::producer);
     }
 
     @Override
-    public <T> ReactiveMessageConsumerFactory<T> messageConsumer(Schema<T> schema) {
-        return new DefaultReactiveMessageConsumerFactory<>(schema, reactivePulsarAdapter.consumer());
+    public <T> ReactiveMessageConsumerBuilder<T> messageConsumer(Schema<T> schema) {
+        return new DefaultReactiveMessageConsumerBuilder<>(schema, reactivePulsarAdapter.consumer());
     }
 }

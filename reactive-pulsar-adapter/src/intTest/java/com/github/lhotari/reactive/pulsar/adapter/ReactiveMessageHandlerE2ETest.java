@@ -31,7 +31,7 @@ public class ReactiveMessageHandlerE2ETest {
             ReactiveMessageSender<String> messageSender = reactivePulsarClient
                     .messageSender(Schema.STRING)
                     .topic(topicName)
-                    .create();
+                    .build();
             messageSender.sendMessages(Flux.range(1, 100)
                             .map(Object::toString)
                             .map(MessageSpec::of))
@@ -47,7 +47,7 @@ public class ReactiveMessageHandlerE2ETest {
                                          .consumerConfigurer(consumerBuilder ->
                                                  consumerBuilder.subscriptionName("sub")
                                                          .topic(topicName))
-                                         .create())
+                                         .build())
                                  .messageHandler(message -> Mono.fromRunnable(() -> {
                                      messages.add(message.getValue());
                                      latch.countDown();

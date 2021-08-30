@@ -2,10 +2,10 @@ package com.github.lhotari.reactive.pulsar.adapter;
 
 import reactor.core.scheduler.Scheduler;
 
-public interface ReactiveMessageConsumerFactory<T> {
-    ReactiveMessageConsumerFactory<T> consumerConfigurer(ConsumerConfigurer<T> readerConfigurer);
+public interface ReactiveMessageConsumerBuilder<T> {
+    ReactiveMessageConsumerBuilder<T> consumerConfigurer(ConsumerConfigurer<T> readerConfigurer);
 
-    ReactiveMessageConsumerFactory<T> topic(String topicName);
+    ReactiveMessageConsumerBuilder<T> topic(String topicName);
 
     /**
      * When set to true, ignores the acknowledge operation completion and makes it asynchronous from the message
@@ -15,9 +15,9 @@ public interface ReactiveMessageConsumerFactory<T> {
      * @param acknowledgeAsynchronously When set to true, ignores the acknowledge operation completion
      * @return the current ReactiveMessageConsumerFactory instance (this)
      */
-    ReactiveMessageConsumerFactory<T> acknowledgeAsynchronously(boolean acknowledgeAsynchronously);
+    ReactiveMessageConsumerBuilder<T> acknowledgeAsynchronously(boolean acknowledgeAsynchronously);
 
-    ReactiveMessageConsumerFactory<T> acknowledgeScheduler(Scheduler acknowledgeScheduler);
+    ReactiveMessageConsumerBuilder<T> acknowledgeScheduler(Scheduler acknowledgeScheduler);
 
-    ReactiveMessageConsumer<T> create();
+    ReactiveMessageConsumer<T> build();
 }

@@ -4,14 +4,14 @@ import com.github.lhotari.reactive.pulsar.adapter.InflightLimiter;
 import com.github.lhotari.reactive.pulsar.adapter.ProducerConfigurer;
 import com.github.lhotari.reactive.pulsar.adapter.PublisherTransformer;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSender;
-import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSenderFactory;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSenderBuilder;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerAdapterFactory;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.Schema;
 import reactor.core.scheduler.Schedulers;
 
-class DefaultReactiveMessageSenderFactory<T> implements ReactiveMessageSenderFactory<T> {
+class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBuilder<T> {
     private final Schema<T> schema;
     private final Supplier<ReactiveProducerAdapterFactory> reactiveProducerAdapterFactorySupplier;
     private ProducerConfigurer<T> producerConfigurer;
@@ -20,32 +20,32 @@ class DefaultReactiveMessageSenderFactory<T> implements ReactiveMessageSenderFac
     private int maxInflight = 100;
     private Supplier<PublisherTransformer> producerActionTransformer = PublisherTransformer::identity;
 
-    public DefaultReactiveMessageSenderFactory(Schema<T> schema,
+    public DefaultReactiveMessageSenderBuilder(Schema<T> schema,
                                                Supplier<ReactiveProducerAdapterFactory> reactiveProducerAdapterFactorySupplier) {
         this.schema = schema;
         this.reactiveProducerAdapterFactorySupplier = reactiveProducerAdapterFactorySupplier;
     }
 
     @Override
-    public ReactiveMessageSenderFactory<T> cache(ReactiveProducerCache producerCache) {
+    public ReactiveMessageSenderBuilder<T> cache(ReactiveProducerCache producerCache) {
         this.producerCache = producerCache;
         return this;
     }
 
     @Override
-    public ReactiveMessageSenderFactory<T> producerConfigurer(ProducerConfigurer<T> producerConfigurer) {
+    public ReactiveMessageSenderBuilder<T> producerConfigurer(ProducerConfigurer<T> producerConfigurer) {
         this.producerConfigurer = producerConfigurer;
         return this;
     }
 
     @Override
-    public ReactiveMessageSenderFactory<T> topic(String topicName) {
+    public ReactiveMessageSenderBuilder<T> topic(String topicName) {
         this.topicName = topicName;
         return this;
     }
 
     @Override
-    public ReactiveMessageSenderFactory<T> maxInflight(int maxInflight) {
+    public ReactiveMessageSenderBuilder<T> maxInflight(int maxInflight) {
         this.maxInflight = maxInflight;
         producerActionTransformer =
                 () -> new InflightLimiter(maxInflight, Math.max(maxInflight / 2, 1), Schedulers.single());
@@ -53,7 +53,7 @@ class DefaultReactiveMessageSenderFactory<T> implements ReactiveMessageSenderFac
     }
 
     @Override
-    public ReactiveMessageSender<T> create() {
+    public ReactiveMessageSender<T> build() {
         ReactiveProducerAdapterFactory reactiveProducerAdapterFactory = reactiveProducerAdapterFactorySupplier.get();
         reactiveProducerAdapterFactory.cache(producerCache);
         reactiveProducerAdapterFactory.producerActionTransformer(producerActionTransformer);

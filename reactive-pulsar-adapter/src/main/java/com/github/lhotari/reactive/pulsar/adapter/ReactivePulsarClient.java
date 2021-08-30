@@ -18,9 +18,9 @@ public interface ReactivePulsarClient {
         return DefaultImplementationFactory.createReactivePulsarClient(reactivePulsarAdapter);
     }
 
-    <T> ReactiveMessageSenderFactory<T> messageSender(Schema<T> schema);
+    <T> ReactiveMessageSenderBuilder<T> messageSender(Schema<T> schema);
 
-    <T> ReactiveMessageReaderFactory<T> messageReader(Schema<T> schema);
+    <T> ReactiveMessageReaderBuilder<T> messageReader(Schema<T> schema);
 
-    <T> ReactiveMessageConsumerFactory<T> messageConsumer(Schema<T> schema);
+    <T> ReactiveMessageConsumerBuilder<T> messageConsumer(Schema<T> schema);
 }
