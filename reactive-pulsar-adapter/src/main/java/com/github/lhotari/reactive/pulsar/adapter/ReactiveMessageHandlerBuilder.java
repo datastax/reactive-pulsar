@@ -19,9 +19,15 @@ public interface ReactiveMessageHandlerBuilder<T> {
 
         OneByOneMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger);
 
-        OneByOneMessageHandlerBuilder<T> keyOrdered(boolean keyOrdered);
+        ConcurrentOneByOneMessageHandlerBuilder<T> concurrent();
+    }
 
-        OneByOneMessageHandlerBuilder<T> concurrency(int concurrency);
+    interface ConcurrentOneByOneMessageHandlerBuilder<T> extends OneByOneMessageHandlerBuilder<T> {
+        ConcurrentOneByOneMessageHandlerBuilder<T> keyOrdered(boolean keyOrdered);
+
+        ConcurrentOneByOneMessageHandlerBuilder<T> concurrency(int concurrency);
+
+        ConcurrentOneByOneMessageHandlerBuilder<T> maxInflight(int maxInflight);
     }
 
     OneByOneMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler);

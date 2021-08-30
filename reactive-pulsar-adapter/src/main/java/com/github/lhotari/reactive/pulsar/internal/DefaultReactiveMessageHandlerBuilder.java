@@ -19,7 +19,7 @@ import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
 class DefaultReactiveMessageHandlerBuilder<T> implements
-        ReactiveMessageHandlerBuilder.OneByOneMessageHandlerBuilder<T> {
+        ReactiveMessageHandlerBuilder.ConcurrentOneByOneMessageHandlerBuilder<T> {
     private final Logger LOG = LoggerFactory.getLogger(DefaultReactiveMessageHandlerBuilder.class);
     private final ReactiveMessageConsumer<T> messageConsumer;
     private Function<Message<T>, Mono<Void>> messageHandler;
@@ -36,6 +36,7 @@ class DefaultReactiveMessageHandlerBuilder<T> implements
     private Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler;
     private boolean keyOrdered;
     private int concurrency;
+    private int maxInflight;
 
     public DefaultReactiveMessageHandlerBuilder(ReactiveMessageConsumer<T> messageConsumer) {
         this.messageConsumer = messageConsumer;
@@ -63,14 +64,25 @@ class DefaultReactiveMessageHandlerBuilder<T> implements
     }
 
     @Override
-    public OneByOneMessageHandlerBuilder<T> keyOrdered(boolean keyOrdered) {
+    public ConcurrentOneByOneMessageHandlerBuilder<T> concurrent() {
+        return this;
+    }
+
+    @Override
+    public ConcurrentOneByOneMessageHandlerBuilder<T> keyOrdered(boolean keyOrdered) {
         this.keyOrdered = keyOrdered;
         return this;
     }
 
     @Override
-    public OneByOneMessageHandlerBuilder<T> concurrency(int concurrency) {
+    public ConcurrentOneByOneMessageHandlerBuilder<T> concurrency(int concurrency) {
         this.concurrency = concurrency;
+        return this;
+    }
+
+    @Override
+    public ConcurrentOneByOneMessageHandlerBuilder<T> maxInflight(int maxInflight) {
+        this.maxInflight = maxInflight;
         return this;
     }
 
