@@ -2,13 +2,10 @@ package com.github.lhotari.reactive.pulsar.spring.test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.TestPropertySources;
 import org.testcontainers.containers.PulsarContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;

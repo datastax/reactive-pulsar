@@ -5,12 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.github.lhotari.reactive.pulsar.producercache.CaffeineReactiveProducerCache;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import org.apache.pulsar.client.api.Consumer;
-import org.apache.pulsar.client.api.Message;
-import org.apache.pulsar.client.api.MessageId;
-import org.apache.pulsar.client.api.PulsarClient;
-import org.apache.pulsar.client.api.PulsarClientException;
-import org.apache.pulsar.client.api.Schema;
+import org.apache.pulsar.client.api.*;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
