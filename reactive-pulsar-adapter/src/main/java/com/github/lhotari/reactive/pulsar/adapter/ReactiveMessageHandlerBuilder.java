@@ -18,6 +18,10 @@ public interface ReactiveMessageHandlerBuilder<T> {
         OneByOneMessageHandlerBuilder<T> handlingTimeout(Duration handlingTimeout);
 
         OneByOneMessageHandlerBuilder<T> errorLogger(BiConsumer<Message<T>, Throwable> errorLogger);
+
+        OneByOneMessageHandlerBuilder<T> keyOrdered(boolean keyOrdered);
+
+        OneByOneMessageHandlerBuilder<T> concurrency(int concurrency);
     }
 
     OneByOneMessageHandlerBuilder<T> messageHandler(Function<Message<T>, Mono<Void>> messageHandler);

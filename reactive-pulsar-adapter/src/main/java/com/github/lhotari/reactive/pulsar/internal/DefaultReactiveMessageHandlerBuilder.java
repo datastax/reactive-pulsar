@@ -4,15 +4,18 @@ import com.github.lhotari.reactive.pulsar.adapter.MessageResult;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumer;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageHandler;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageHandlerBuilder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.client.impl.Murmur3_32Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
 class DefaultReactiveMessageHandlerBuilder<T> implements
@@ -31,6 +34,8 @@ class DefaultReactiveMessageHandlerBuilder<T> implements
     private Duration handlingTimeout = Duration.ofSeconds(120);
     private Function<Mono<Void>, Mono<Void>> transformer = Function.identity();
     private Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler;
+    private boolean keyOrdered;
+    private int concurrency;
 
     public DefaultReactiveMessageHandlerBuilder(ReactiveMessageConsumer<T> messageConsumer) {
         this.messageConsumer = messageConsumer;
@@ -54,6 +59,18 @@ class DefaultReactiveMessageHandlerBuilder<T> implements
     public ReactiveMessageHandlerBuilder.OneByOneMessageHandlerBuilder<T> errorLogger(
             BiConsumer<Message<T>, Throwable> errorLogger) {
         this.errorLogger = errorLogger;
+        return this;
+    }
+
+    @Override
+    public OneByOneMessageHandlerBuilder<T> keyOrdered(boolean keyOrdered) {
+        this.keyOrdered = keyOrdered;
+        return this;
+    }
+
+    @Override
+    public OneByOneMessageHandlerBuilder<T> concurrency(int concurrency) {
+        this.concurrency = concurrency;
         return this;
     }
 
@@ -106,26 +123,58 @@ class DefaultReactiveMessageHandlerBuilder<T> implements
                 throw new IllegalStateException(
                         "messageHandler and streamingMessageHandler cannot be set at the same time.");
             }
-            return messageFlux.flatMap(message -> messageHandler.apply(message)
-                    .transform(this::decorateMessageHandler)
-                    .thenReturn(MessageResult.acknowledge(message.getMessageId()))
-                    .onErrorResume(throwable -> {
-                        if (errorLogger != null) {
-                            try {
-                                errorLogger.accept(message, throwable);
-                            } catch (Exception e) {
-                                LOG.error("Error in calling error logger", e);
-                            }
-                        } else {
-                            LOG.error("Message handling for message id {} failed.", message.getMessageId(),
-                                    throwable);
-                        }
-                        // TODO: nack doesn't work for batch messages due to Pulsar bugs
-                        return Mono.just(MessageResult.negativeAcknowledge(message.getMessageId()));
-                    }));
+            if (concurrency > 1) {
+                if (keyOrdered) {
+                    return messageFlux.groupBy(message -> resolveGroupKey(message, concurrency))
+                            .flatMap(groupedFlux ->
+                                            groupedFlux.concatMap(message -> handleMessage(message))
+                                                    .subscribeOn(Schedulers.parallel()),
+                                    concurrency);
+                } else {
+                    return messageFlux.flatMap(message -> handleMessage(message)
+                                    .subscribeOn(Schedulers.parallel()),
+                            concurrency);
+                }
+            } else {
+                return messageFlux.concatMap(this::handleMessage);
+            }
         } else {
             return Objects.requireNonNull(streamingMessageHandler,
-                    "streamingMessageHandler or messageHandler must be set").apply(messageFlux);
+                            "streamingMessageHandler or messageHandler must be set")
+                    .apply(messageFlux);
         }
+    }
+
+    private Integer resolveGroupKey(Message<T> message, int concurrency) {
+        byte[] keyBytes;
+        if (message.hasOrderingKey()) {
+            keyBytes = message.getOrderingKey();
+        } else if (message.hasKey()) {
+            keyBytes = message.getKey().getBytes(StandardCharsets.UTF_8);
+        } else {
+            keyBytes = message.getMessageId().toByteArray();
+        }
+        int hash = Murmur3_32Hash.getInstance().makeHash(keyBytes);
+        return hash % concurrency;
+    }
+
+    private Mono<MessageResult<Void>> handleMessage(Message<T> message) {
+        return messageHandler.apply(message)
+                .transform(this::decorateMessageHandler)
+                .thenReturn(MessageResult.acknowledge(message.getMessageId()))
+                .onErrorResume(throwable -> {
+                    if (errorLogger != null) {
+                        try {
+                            errorLogger.accept(message, throwable);
+                        } catch (Exception e) {
+                            LOG.error("Error in calling error logger", e);
+                        }
+                    } else {
+                        LOG.error("Message handling for message id {} failed.", message.getMessageId(),
+                                throwable);
+                    }
+                    // TODO: nack doesn't work for batch messages due to Pulsar bugs
+                    return Mono.just(MessageResult.negativeAcknowledge(message.getMessageId()));
+                });
     }
 }
