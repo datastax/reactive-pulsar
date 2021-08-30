@@ -1,19 +1,132 @@
 package com.github.lhotari.reactive.pulsar.internal;
 
+import com.github.lhotari.reactive.pulsar.adapter.MessageResult;
+import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumer;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageHandler;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.client.impl.Murmur3_32Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+import reactor.util.retry.Retry;
 
-class DefaultReactiveMessageHandler implements ReactiveMessageHandler {
-    private final Logger LOG = LoggerFactory.getLogger(DefaultReactiveMessageHandler.class);
+class DefaultReactiveMessageHandler<T> implements ReactiveMessageHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultReactiveMessageHandler.class);
     private final AtomicReference<Disposable> killSwitch = new AtomicReference<>();
     private final Mono<Void> pipeline;
+    private final Function<Message<T>, Mono<Void>> messageHandler;
+    private final BiConsumer<Message<T>, Throwable> errorLogger;
+    private final Retry pipelineRetrySpec;
+    private final Duration handlingTimeout;
+    private final Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler;
+    private final boolean keyOrdered;
+    private final int concurrency;
+    private final int maxInflight;
 
-    public DefaultReactiveMessageHandler(Mono<Void> pipeline) {
-        this.pipeline = pipeline;
+    public DefaultReactiveMessageHandler(ReactiveMessageConsumer<T> messageConsumer,
+                                             Function<Message<T>, Mono<Void>> messageHandler,
+                                             BiConsumer<Message<T>, Throwable> errorLogger, Retry pipelineRetrySpec,
+                                             Duration handlingTimeout, Function<Mono<Void>, Mono<Void>> transformer,
+                                             Function<Flux<Message<T>>, Flux<MessageResult<Void>>> streamingMessageHandler,
+                                             boolean keyOrdered, int concurrency, int maxInflight) {
+        this.messageHandler = messageHandler;
+        this.errorLogger = errorLogger;
+        this.pipelineRetrySpec = pipelineRetrySpec;
+        this.handlingTimeout = handlingTimeout;
+        this.streamingMessageHandler = streamingMessageHandler;
+        this.keyOrdered = keyOrdered;
+        this.concurrency = concurrency;
+        this.maxInflight = maxInflight;
+        this.pipeline = messageConsumer.consumeMessages(this::createMessageConsumer)
+                .then()
+                .transform(transformer)
+                .transform(this::decoratePipeline);
+    }
+
+    private Mono<Void> decorateMessageHandler(Mono<Void> messageHandler) {
+        if (handlingTimeout != null) {
+            return messageHandler.timeout(handlingTimeout);
+        } else {
+            return messageHandler;
+        }
+    }
+
+    private Mono<Void> decoratePipeline(Mono<Void> pipeline) {
+        if (pipelineRetrySpec != null) {
+            return pipeline.retryWhen(pipelineRetrySpec);
+        } else {
+            return pipeline;
+        }
+    }
+
+    private Flux<MessageResult<Void>> createMessageConsumer(Flux<Message<T>> messageFlux) {
+        if (messageHandler != null) {
+            if (streamingMessageHandler != null) {
+                throw new IllegalStateException(
+                        "messageHandler and streamingMessageHandler cannot be set at the same time.");
+            }
+            if (concurrency > 1) {
+                if (keyOrdered) {
+                    return messageFlux.groupBy(message -> resolveGroupKey(message, concurrency))
+                            .flatMap(groupedFlux ->
+                                            groupedFlux.concatMap(message -> handleMessage(message))
+                                                    .subscribeOn(Schedulers.parallel()),
+                                    concurrency);
+                } else {
+                    return messageFlux.flatMap(message -> handleMessage(message)
+                                    .subscribeOn(Schedulers.parallel()),
+                            concurrency);
+                }
+            } else {
+                return messageFlux.concatMap(this::handleMessage);
+            }
+        } else {
+            return Objects.requireNonNull(streamingMessageHandler,
+                            "streamingMessageHandler or messageHandler must be set")
+                    .apply(messageFlux);
+        }
+    }
+
+    private static Integer resolveGroupKey(Message<?> message, int concurrency) {
+        byte[] keyBytes;
+        if (message.hasOrderingKey()) {
+            keyBytes = message.getOrderingKey();
+        } else if (message.hasKey()) {
+            keyBytes = message.getKey().getBytes(StandardCharsets.UTF_8);
+        } else {
+            keyBytes = message.getMessageId().toByteArray();
+        }
+        int hash = Murmur3_32Hash.getInstance().makeHash(keyBytes);
+        return hash % concurrency;
+    }
+
+    private Mono<MessageResult<Void>> handleMessage(Message<T> message) {
+        return messageHandler.apply(message)
+                .transform(this::decorateMessageHandler)
+                .thenReturn(MessageResult.acknowledge(message.getMessageId()))
+                .onErrorResume(throwable -> {
+                    if (errorLogger != null) {
+                        try {
+                            errorLogger.accept(message, throwable);
+                        } catch (Exception e) {
+                            LOG.error("Error in calling error logger", e);
+                        }
+                    } else {
+                        LOG.error("Message handling for message id {} failed.", message.getMessageId(),
+                                throwable);
+                    }
+                    // TODO: nack doesn't work for batch messages due to Pulsar bugs
+                    return Mono.just(MessageResult.negativeAcknowledge(message.getMessageId()));
+                });
     }
 
     @Override
