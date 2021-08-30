@@ -38,9 +38,10 @@ public interface ReactivePulsarClient {
     }
 
     /**
-     * Creates a ReactivePulsarClient that wraps a ReactivePulsarResourceAdapter instance
+     * Creates a ReactivePulsarClient that uses an existing ReactivePulsarResourceAdapter instance
+     * for accessing Pulsar resources.
      *
-     * @param reactivePulsarResourceAdapter the ReactivePulsarResourceAdapter
+     * @param reactivePulsarResourceAdapter the ReactivePulsarResourceAdapter instance
      * @return a ReactivePulsarClient instance
      */
     static ReactivePulsarClient create(ReactivePulsarResourceAdapter reactivePulsarResourceAdapter) {

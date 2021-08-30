@@ -4,6 +4,14 @@ import com.github.lhotari.reactive.pulsar.internal.resourceadapter.ResourceWrapp
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.PulsarClient;
 
+/**
+ * ReactivePulsarResourceAdapter provides factories for adapters which are used to handle the lifecycle of
+ * PulsarClient {@link org.apache.pulsar.client.api.Producer}, {@link org.apache.pulsar.client.api.Consumer}
+ * and {@link org.apache.pulsar.client.api.Reader} instances.
+ *
+ * This interface is not designed to be used by application code directly. Instead, this is used for the
+ * {@link com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient} implementations.
+ */
 public interface ReactivePulsarResourceAdapter {
     static ReactivePulsarResourceAdapter create(Supplier<PulsarClient> pulsarClientSupplier) {
         return ResourceWrapperImplementationFactory.createReactivePulsarResourceAdapter(pulsarClientSupplier);
