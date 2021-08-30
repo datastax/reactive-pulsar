@@ -4,12 +4,12 @@ import com.github.lhotari.reactive.pulsar.internal.resourceadapter.ResourceWrapp
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.PulsarClient;
 
-public interface ReactivePulsarAdapter {
-    static ReactivePulsarAdapter create(Supplier<PulsarClient> pulsarClientSupplier) {
-        return ResourceWrapperImplementationFactory.createReactivePulsarAdapter(pulsarClientSupplier);
+public interface ReactivePulsarResourceAdapter {
+    static ReactivePulsarResourceAdapter create(Supplier<PulsarClient> pulsarClientSupplier) {
+        return ResourceWrapperImplementationFactory.createReactivePulsarResourceAdapter(pulsarClientSupplier);
     }
 
-    static ReactivePulsarAdapter create(PulsarClient pulsarClient) {
+    static ReactivePulsarResourceAdapter create(PulsarClient pulsarClient) {
         return create(() -> pulsarClient);
     }
 

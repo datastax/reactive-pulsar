@@ -1,7 +1,7 @@
 package com.github.lhotari.reactive.pulsar.internal.adapter;
 
 import com.github.lhotari.reactive.pulsar.adapter.*;
-import com.github.lhotari.reactive.pulsar.resourceadapter.ReactivePulsarAdapter;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactivePulsarResourceAdapter;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.MessageId;
@@ -9,8 +9,10 @@ import reactor.core.publisher.Mono;
 
 public class AdapterImplementationFactory {
 
-    public static ReactivePulsarClient createReactivePulsarClient(ReactivePulsarAdapter reactivePulsarAdapter) {
-        return new DefaultReactivePulsarClient(reactivePulsarAdapter);
+    public static ReactivePulsarClient createReactivePulsarClient(
+        ReactivePulsarResourceAdapter reactivePulsarResourceAdapter
+    ) {
+        return new DefaultReactivePulsarClient(reactivePulsarResourceAdapter);
     }
 
     public static <T> ReactiveMessageHandlerBuilder<T> createReactiveMessageHandlerBuilder(

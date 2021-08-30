@@ -1,7 +1,7 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
 import com.github.lhotari.reactive.pulsar.internal.adapter.AdapterImplementationFactory;
-import com.github.lhotari.reactive.pulsar.resourceadapter.ReactivePulsarAdapter;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactivePulsarResourceAdapter;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
@@ -34,17 +34,17 @@ public interface ReactivePulsarClient {
      * @return a ReactivePulsarClient instance
      */
     static ReactivePulsarClient create(Supplier<PulsarClient> pulsarClientSupplier) {
-        return create(ReactivePulsarAdapter.create(pulsarClientSupplier));
+        return create(ReactivePulsarResourceAdapter.create(pulsarClientSupplier));
     }
 
     /**
-     * Creates a ReactivePulsarClient that wraps a ReactivePulsarAdapter instance
+     * Creates a ReactivePulsarClient that wraps a ReactivePulsarResourceAdapter instance
      *
-     * @param reactivePulsarAdapter the ReactivePulsarAdapter
+     * @param reactivePulsarResourceAdapter the ReactivePulsarResourceAdapter
      * @return a ReactivePulsarClient instance
      */
-    static ReactivePulsarClient create(ReactivePulsarAdapter reactivePulsarAdapter) {
-        return AdapterImplementationFactory.createReactivePulsarClient(reactivePulsarAdapter);
+    static ReactivePulsarClient create(ReactivePulsarResourceAdapter reactivePulsarResourceAdapter) {
+        return AdapterImplementationFactory.createReactivePulsarClient(reactivePulsarResourceAdapter);
     }
 
     /**

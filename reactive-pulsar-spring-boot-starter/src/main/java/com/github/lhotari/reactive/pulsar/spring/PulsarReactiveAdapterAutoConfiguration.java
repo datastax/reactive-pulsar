@@ -3,7 +3,7 @@ package com.github.lhotari.reactive.pulsar.spring;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;
 import com.github.lhotari.reactive.pulsar.producercache.CaffeineReactiveProducerCache;
 import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveProducerCache;
-import com.github.lhotari.reactive.pulsar.resourceadapter.ReactivePulsarAdapter;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactivePulsarResourceAdapter;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -15,14 +15,16 @@ public class PulsarReactiveAdapterAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    ReactivePulsarAdapter reactivePulsarAdapter(ObjectProvider<PulsarClient> pulsarClientObjectProvider) {
-        return ReactivePulsarAdapter.create(pulsarClientObjectProvider::getObject);
+    ReactivePulsarResourceAdapter ReactivePulsarResourceAdapter(
+        ObjectProvider<PulsarClient> pulsarClientObjectProvider
+    ) {
+        return ReactivePulsarResourceAdapter.create(pulsarClientObjectProvider::getObject);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    ReactivePulsarClient reactivePulsarClient(ReactivePulsarAdapter reactivePulsarAdapter) {
-        return ReactivePulsarClient.create(reactivePulsarAdapter);
+    ReactivePulsarClient reactivePulsarClient(ReactivePulsarResourceAdapter reactivePulsarResourceAdapter) {
+        return ReactivePulsarClient.create(reactivePulsarResourceAdapter);
     }
 
     @Bean
