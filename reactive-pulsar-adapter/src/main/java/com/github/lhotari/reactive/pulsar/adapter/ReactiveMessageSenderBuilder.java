@@ -1,5 +1,7 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
+import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveProducerCache;
+
 public interface ReactiveMessageSenderBuilder<T> {
     ReactiveMessageSenderBuilder<T> cache(ReactiveProducerCache producerCache);
 

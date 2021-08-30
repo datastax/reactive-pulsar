@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.lhotari.reactive.pulsar.adapter.MessageSpec;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSender;
-import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;
+import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveProducerCache;
 import com.github.lhotari.reactive.pulsar.spring.test.SingletonPulsarContainer;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;

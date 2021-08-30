@@ -1,6 +1,7 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
-import com.github.lhotari.reactive.pulsar.internal.DefaultImplementationFactory;
+import com.github.lhotari.reactive.pulsar.internal.adapter.AdapterImplementationFactory;
+import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactivePulsarAdapter;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
@@ -43,7 +44,7 @@ public interface ReactivePulsarClient {
      * @return a ReactivePulsarClient instance
      */
     static ReactivePulsarClient create(ReactivePulsarAdapter reactivePulsarAdapter) {
-        return DefaultImplementationFactory.createReactivePulsarClient(reactivePulsarAdapter);
+        return AdapterImplementationFactory.createReactivePulsarClient(reactivePulsarAdapter);
     }
 
     /**

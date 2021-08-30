@@ -1,9 +1,9 @@
 package com.github.lhotari.reactive.pulsar.spring;
 
-import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
-import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarAdapter;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;
 import com.github.lhotari.reactive.pulsar.producercache.CaffeineReactiveProducerCache;
+import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveProducerCache;
+import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactivePulsarAdapter;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

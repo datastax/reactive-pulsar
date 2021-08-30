@@ -1,10 +1,10 @@
 package com.github.lhotari.reactive.pulsar.producercache;
 
 import com.github.benmanes.caffeine.cache.*;
-import com.github.lhotari.reactive.pulsar.adapter.ProducerCacheKey;
-import com.github.lhotari.reactive.pulsar.adapter.PublisherTransformer;
-import com.github.lhotari.reactive.pulsar.adapter.ReactiveProducerCache;
-import com.github.lhotari.reactive.pulsar.internal.DefaultImplementationFactory;
+import com.github.lhotari.reactive.pulsar.internal.adapter.AdapterImplementationFactory;
+import com.github.lhotari.reactive.pulsar.resourcewrapper.ProducerCacheKey;
+import com.github.lhotari.reactive.pulsar.resourcewrapper.PublisherTransformer;
+import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveProducerCache;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -70,7 +70,7 @@ public class CaffeineReactiveProducerCache implements ReactiveProducerCache, Aut
         Mono<Producer<T>> producerMono,
         Supplier<PublisherTransformer> producerActionTransformer
     ) {
-        return DefaultImplementationFactory
+        return AdapterImplementationFactory
             .adaptPulsarFuture(() ->
                 this.cache.get(
                         cacheKey,

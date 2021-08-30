@@ -1,5 +1,6 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
+import com.github.lhotari.reactive.pulsar.resourcewrapper.PublisherTransformer;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jctools.queues.MpmcArrayQueue;

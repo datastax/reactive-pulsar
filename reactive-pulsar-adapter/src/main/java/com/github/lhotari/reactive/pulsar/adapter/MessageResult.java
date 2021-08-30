@@ -1,23 +1,23 @@
 package com.github.lhotari.reactive.pulsar.adapter;
 
-import com.github.lhotari.reactive.pulsar.internal.DefaultImplementationFactory;
+import com.github.lhotari.reactive.pulsar.internal.adapter.AdapterImplementationFactory;
 import org.apache.pulsar.client.api.MessageId;
 
 public interface MessageResult<T> {
     static <T> MessageResult<T> acknowledge(MessageId messageId, T value) {
-        return DefaultImplementationFactory.acknowledge(messageId, value);
+        return AdapterImplementationFactory.acknowledge(messageId, value);
     }
 
     static <T> MessageResult<T> negativeAcknowledge(MessageId messageId, T value) {
-        return DefaultImplementationFactory.negativeAcknowledge(messageId, value);
+        return AdapterImplementationFactory.negativeAcknowledge(messageId, value);
     }
 
     static MessageResult<Void> acknowledge(MessageId messageId) {
-        return DefaultImplementationFactory.acknowledge(messageId);
+        return AdapterImplementationFactory.acknowledge(messageId);
     }
 
     static MessageResult<Void> negativeAcknowledge(MessageId messageId) {
-        return DefaultImplementationFactory.negativeAcknowledge(messageId);
+        return AdapterImplementationFactory.negativeAcknowledge(messageId);
     }
 
     boolean isAcknowledgeMessage();
