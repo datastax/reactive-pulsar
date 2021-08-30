@@ -4,7 +4,6 @@ import com.github.lhotari.reactive.pulsar.adapter.InflightLimiter;
 import com.github.lhotari.reactive.pulsar.adapter.MessageResult;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumer;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageHandler;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -132,16 +131,18 @@ class DefaultReactiveMessageHandler<T> implements ReactiveMessageHandler {
     }
 
     private static Integer resolveGroupKey(Message<?> message, int concurrency) {
-        byte[] keyBytes;
+        byte[] keyBytes = null;
         if (message.hasOrderingKey()) {
             keyBytes = message.getOrderingKey();
         } else if (message.hasKey()) {
-            keyBytes = message.getKey().getBytes(StandardCharsets.UTF_8);
-        } else {
+            keyBytes = message.getKeyBytes();
+        }
+        if (keyBytes == null || keyBytes.length == 0) {
+            // use a group that has been derived from the message id so that redeliveries get handled in order
             keyBytes = message.getMessageId().toByteArray();
         }
-        int hash = Murmur3_32Hash.getInstance().makeHash(keyBytes);
-        return hash % concurrency;
+        int keyHash = Murmur3_32Hash.getInstance().makeHash(keyBytes);
+        return keyHash % concurrency;
     }
 
     private Mono<MessageResult<Void>> handleMessage(Message<T> message) {
