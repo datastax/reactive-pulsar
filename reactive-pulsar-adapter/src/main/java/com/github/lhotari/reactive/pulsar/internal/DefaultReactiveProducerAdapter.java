@@ -26,14 +26,14 @@ class DefaultReactiveProducerAdapter<T> implements ReactiveProducerAdapter<T> {
     private Supplier<PublisherTransformer> producerActionTransformer;
 
     public DefaultReactiveProducerAdapter(
-        ReactiveProducerCache producerCache,
-        Function<PulsarClient, ProducerBuilder<T>> producerBuilderFactory,
         Supplier<PulsarClient> pulsarClientSupplier,
+        Function<PulsarClient, ProducerBuilder<T>> producerBuilderFactory,
+        ReactiveProducerCache producerCache,
         Supplier<PublisherTransformer> producerActionTransformer
     ) {
-        this.producerCache = producerCache;
-        this.producerBuilderFactory = producerBuilderFactory;
         this.pulsarClientSupplier = pulsarClientSupplier;
+        this.producerBuilderFactory = producerBuilderFactory;
+        this.producerCache = producerCache;
         this.producerActionTransformer = producerActionTransformer;
     }
 

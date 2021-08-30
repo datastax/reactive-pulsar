@@ -18,7 +18,7 @@ class DefaultReactivePulsarClient implements ReactivePulsarClient {
 
     @Override
     public <T> ReactiveMessageSenderBuilder<T> messageSender(Schema<T> schema) {
-        return new DefaultReactiveMessageSenderBuilder<>(schema, reactivePulsarAdapter::producer);
+        return new DefaultReactiveMessageSenderBuilder<>(schema, reactivePulsarAdapter.producer());
     }
 
     @Override

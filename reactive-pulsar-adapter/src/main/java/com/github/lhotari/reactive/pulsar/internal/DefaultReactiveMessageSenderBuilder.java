@@ -8,7 +8,7 @@ import reactor.core.scheduler.Schedulers;
 class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBuilder<T> {
 
     private final Schema<T> schema;
-    private final Supplier<ReactiveProducerAdapterFactory> reactiveProducerAdapterFactorySupplier;
+    private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
     private ProducerConfigurer<T> producerConfigurer;
     private String topicName;
     private ReactiveProducerCache producerCache;
@@ -17,10 +17,10 @@ class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 
     public DefaultReactiveMessageSenderBuilder(
         Schema<T> schema,
-        Supplier<ReactiveProducerAdapterFactory> reactiveProducerAdapterFactorySupplier
+        ReactiveProducerAdapterFactory reactiveProducerAdapterFactory
     ) {
         this.schema = schema;
-        this.reactiveProducerAdapterFactorySupplier = reactiveProducerAdapterFactorySupplier;
+        this.reactiveProducerAdapterFactory = reactiveProducerAdapterFactory;
     }
 
     @Override
@@ -51,15 +51,14 @@ class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
 
     @Override
     public ReactiveMessageSender<T> build() {
-        ReactiveProducerAdapterFactory reactiveProducerAdapterFactory = reactiveProducerAdapterFactorySupplier.get();
-        reactiveProducerAdapterFactory.cache(producerCache);
-        reactiveProducerAdapterFactory.producerActionTransformer(producerActionTransformer);
         return new DefaultReactiveMessageSender<>(
             schema,
             producerConfigurer,
             topicName,
             maxInflight,
-            reactiveProducerAdapterFactory
+            reactiveProducerAdapterFactory,
+            producerCache,
+            producerActionTransformer
         );
     }
 }

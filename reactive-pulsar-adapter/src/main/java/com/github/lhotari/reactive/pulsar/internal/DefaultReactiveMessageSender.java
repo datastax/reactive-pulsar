@@ -1,6 +1,7 @@
 package com.github.lhotari.reactive.pulsar.internal;
 
 import com.github.lhotari.reactive.pulsar.adapter.*;
+import java.util.function.Supplier;
 import org.apache.pulsar.client.api.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,32 +13,42 @@ class DefaultReactiveMessageSender<T> implements ReactiveMessageSender<T> {
     private final String topicName;
     private final int maxInflight;
     private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
+    private final ReactiveProducerCache producerCache;
+    private final Supplier<PublisherTransformer> producerActionTransformer;
 
     public DefaultReactiveMessageSender(
         Schema<T> schema,
         ProducerConfigurer<T> producerConfigurer,
         String topicName,
         int maxInflight,
-        ReactiveProducerAdapterFactory reactiveProducerAdapterFactory
+        ReactiveProducerAdapterFactory reactiveProducerAdapterFactory,
+        ReactiveProducerCache producerCache,
+        Supplier<PublisherTransformer> producerActionTransformer
     ) {
         this.schema = schema;
         this.producerConfigurer = producerConfigurer;
         this.topicName = topicName;
         this.maxInflight = maxInflight;
         this.reactiveProducerAdapterFactory = reactiveProducerAdapterFactory;
+        this.producerCache = producerCache;
+        this.producerActionTransformer = producerActionTransformer;
     }
 
     ReactiveProducerAdapter<T> createReactiveProducerAdapter() {
-        return reactiveProducerAdapterFactory.create(pulsarClient -> {
-            ProducerBuilder<T> producerBuilder = pulsarClient.newProducer(schema);
-            if (topicName != null) {
-                producerBuilder.topic(topicName);
-            }
-            if (producerConfigurer != null) {
-                producerConfigurer.configure(producerBuilder);
-            }
-            return producerBuilder;
-        });
+        return reactiveProducerAdapterFactory.create(
+            pulsarClient -> {
+                ProducerBuilder<T> producerBuilder = pulsarClient.newProducer(schema);
+                if (topicName != null) {
+                    producerBuilder.topic(topicName);
+                }
+                if (producerConfigurer != null) {
+                    producerConfigurer.configure(producerBuilder);
+                }
+                return producerBuilder;
+            },
+            producerCache,
+            producerActionTransformer
+        );
     }
 
     @Override
