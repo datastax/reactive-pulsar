@@ -58,6 +58,7 @@ class DefaultReactiveMessageSender<T> implements ReactiveMessageSender<T> {
     public Flux<MessageId> sendMessages(Flux<MessageSpec<T>> messageSpecs) {
         return createReactiveProducerAdapter()
             .usingProducerMany(producer ->
+                // TODO: ensure that inner publishers are subscribed in order so that message order is retained
                 messageSpecs.flatMapSequential(messageSpec -> createMessageMono(messageSpec, producer), maxInflight)
             );
     }
