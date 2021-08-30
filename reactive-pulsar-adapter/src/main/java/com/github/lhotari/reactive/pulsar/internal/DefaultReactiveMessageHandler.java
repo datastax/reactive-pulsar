@@ -1,5 +1,6 @@
 package com.github.lhotari.reactive.pulsar.internal;
 
+import com.github.lhotari.reactive.pulsar.adapter.InflightLimiter;
 import com.github.lhotari.reactive.pulsar.adapter.MessageResult;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumer;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageHandler;
@@ -17,10 +18,13 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.context.Context;
 import reactor.util.retry.Retry;
 
 class DefaultReactiveMessageHandler<T> implements ReactiveMessageHandler {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultReactiveMessageHandler.class);
+    private static final String INFLIGHT_LIMITER_CONTEXT_KEY = DefaultReactiveMessageHandlerBuilder.class.getName()
+            + ".INFLIGHT_LIMITER_CONTEXT_KEY";
     private final AtomicReference<Disposable> killSwitch = new AtomicReference<>();
     private final Mono<Void> pipeline;
     private final Function<Message<T>, Mono<Void>> messageHandler;
@@ -54,13 +58,25 @@ class DefaultReactiveMessageHandler<T> implements ReactiveMessageHandler {
 
     private Mono<Void> decorateMessageHandler(Mono<Void> messageHandler) {
         if (handlingTimeout != null) {
-            return messageHandler.timeout(handlingTimeout);
-        } else {
-            return messageHandler;
+            messageHandler = messageHandler.timeout(handlingTimeout);
         }
+        if (maxInflight > 0) {
+            messageHandler = messageHandler.transformDeferredContextual((original, context) -> {
+                InflightLimiter inflightLimiter = context.get(INFLIGHT_LIMITER_CONTEXT_KEY);
+                return inflightLimiter.transform(original);
+            });
+        }
+        return messageHandler;
     }
 
     private Mono<Void> decoratePipeline(Mono<Void> pipeline) {
+        if (maxInflight > 0) {
+            Mono<Void> finalPipeline = pipeline;
+            pipeline = Mono.using(() -> new InflightLimiter(maxInflight),
+                    inflightLimiter -> finalPipeline.contextWrite(Context.of(INFLIGHT_LIMITER_CONTEXT_KEY,
+                            inflightLimiter)),
+                    InflightLimiter::dispose);
+        }
         if (pipelineRetrySpec != null) {
             return pipeline.retryWhen(pipelineRetrySpec);
         } else {
