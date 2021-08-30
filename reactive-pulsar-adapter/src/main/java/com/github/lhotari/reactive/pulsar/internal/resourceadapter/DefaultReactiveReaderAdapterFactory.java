@@ -1,7 +1,7 @@
-package com.github.lhotari.reactive.pulsar.internal.resourcewrapper;
+package com.github.lhotari.reactive.pulsar.internal.resourceadapter;
 
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveReaderAdapter;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveReaderAdapterFactory;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveReaderAdapter;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveReaderAdapterFactory;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.PulsarClient;

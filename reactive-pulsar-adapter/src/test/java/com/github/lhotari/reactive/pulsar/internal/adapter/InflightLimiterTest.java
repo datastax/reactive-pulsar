@@ -2,7 +2,6 @@ package com.github.lhotari.reactive.pulsar.internal.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.github.lhotari.reactive.pulsar.internal.adapter.InflightLimiter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

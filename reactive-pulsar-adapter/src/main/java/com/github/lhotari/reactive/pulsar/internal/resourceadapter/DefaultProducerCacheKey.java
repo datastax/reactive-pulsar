@@ -1,6 +1,6 @@
-package com.github.lhotari.reactive.pulsar.internal.resourcewrapper;
+package com.github.lhotari.reactive.pulsar.internal.resourceadapter;
 
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ProducerCacheKey;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ProducerCacheKey;
 import java.util.Objects;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;

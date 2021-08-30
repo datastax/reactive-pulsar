@@ -1,4 +1,4 @@
-package com.github.lhotari.reactive.pulsar.resourcewrapper;
+package com.github.lhotari.reactive.pulsar.resourceadapter;
 
 import org.reactivestreams.Publisher;
 import reactor.core.Disposable;

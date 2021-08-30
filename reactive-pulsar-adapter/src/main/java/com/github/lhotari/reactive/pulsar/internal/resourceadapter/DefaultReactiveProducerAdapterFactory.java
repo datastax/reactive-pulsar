@@ -1,9 +1,9 @@
-package com.github.lhotari.reactive.pulsar.internal.resourcewrapper;
+package com.github.lhotari.reactive.pulsar.internal.resourceadapter;
 
-import com.github.lhotari.reactive.pulsar.resourcewrapper.PublisherTransformer;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveProducerAdapter;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveProducerAdapterFactory;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveProducerCache;
+import com.github.lhotari.reactive.pulsar.resourceadapter.PublisherTransformer;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveProducerAdapter;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveProducerAdapterFactory;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveProducerCache;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.ProducerBuilder;

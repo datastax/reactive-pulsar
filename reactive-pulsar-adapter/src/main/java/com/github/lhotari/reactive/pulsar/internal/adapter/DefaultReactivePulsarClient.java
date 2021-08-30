@@ -4,7 +4,7 @@ import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumerBuilder
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageReaderBuilder;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSenderBuilder;
 import com.github.lhotari.reactive.pulsar.adapter.ReactivePulsarClient;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactivePulsarAdapter;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactivePulsarAdapter;
 import org.apache.pulsar.client.api.Schema;
 
 class DefaultReactivePulsarClient implements ReactivePulsarClient {

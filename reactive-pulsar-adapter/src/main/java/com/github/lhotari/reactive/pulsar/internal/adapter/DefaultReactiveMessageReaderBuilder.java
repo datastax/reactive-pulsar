@@ -1,7 +1,7 @@
 package com.github.lhotari.reactive.pulsar.internal.adapter;
 
 import com.github.lhotari.reactive.pulsar.adapter.*;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveReaderAdapterFactory;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveReaderAdapterFactory;
 import org.apache.pulsar.client.api.Schema;
 
 class DefaultReactiveMessageReaderBuilder<T> implements ReactiveMessageReaderBuilder<T> {

@@ -2,9 +2,9 @@ package com.github.lhotari.reactive.pulsar.producercache;
 
 import com.github.benmanes.caffeine.cache.*;
 import com.github.lhotari.reactive.pulsar.internal.adapter.AdapterImplementationFactory;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ProducerCacheKey;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.PublisherTransformer;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveProducerCache;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ProducerCacheKey;
+import com.github.lhotari.reactive.pulsar.resourceadapter.PublisherTransformer;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveProducerCache;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;

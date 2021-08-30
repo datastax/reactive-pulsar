@@ -3,8 +3,8 @@ package com.github.lhotari.reactive.pulsar.internal.adapter;
 import static com.github.lhotari.reactive.pulsar.internal.adapter.PulsarFutureAdapter.adaptPulsarFuture;
 
 import com.github.lhotari.reactive.pulsar.adapter.*;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveReaderAdapter;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveReaderAdapterFactory;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveReaderAdapter;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveReaderAdapterFactory;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;

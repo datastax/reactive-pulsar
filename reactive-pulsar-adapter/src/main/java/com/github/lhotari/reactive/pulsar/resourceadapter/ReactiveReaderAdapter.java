@@ -1,4 +1,4 @@
-package com.github.lhotari.reactive.pulsar.resourcewrapper;
+package com.github.lhotari.reactive.pulsar.resourceadapter;
 
 import java.util.function.Function;
 import org.apache.pulsar.client.api.Reader;

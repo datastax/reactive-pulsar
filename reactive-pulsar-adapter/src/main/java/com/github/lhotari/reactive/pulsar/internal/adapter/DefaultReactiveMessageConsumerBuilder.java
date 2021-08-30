@@ -3,7 +3,7 @@ package com.github.lhotari.reactive.pulsar.internal.adapter;
 import com.github.lhotari.reactive.pulsar.adapter.ConsumerConfigurer;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumer;
 import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageConsumerBuilder;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactiveConsumerAdapterFactory;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveConsumerAdapterFactory;
 import org.apache.pulsar.client.api.Schema;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;

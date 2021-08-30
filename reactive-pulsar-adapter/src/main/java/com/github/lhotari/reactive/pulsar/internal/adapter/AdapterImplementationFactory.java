@@ -1,7 +1,7 @@
 package com.github.lhotari.reactive.pulsar.internal.adapter;
 
 import com.github.lhotari.reactive.pulsar.adapter.*;
-import com.github.lhotari.reactive.pulsar.resourcewrapper.ReactivePulsarAdapter;
+import com.github.lhotari.reactive.pulsar.resourceadapter.ReactivePulsarAdapter;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.MessageId;
