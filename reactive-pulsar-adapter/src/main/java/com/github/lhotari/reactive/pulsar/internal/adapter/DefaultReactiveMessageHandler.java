@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.apache.pulsar.client.api.Message;
-import org.apache.pulsar.client.impl.Murmur3_32Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.Disposable;
@@ -104,15 +103,12 @@ class DefaultReactiveMessageHandler<T> implements ReactiveMessageHandler {
             }
             if (concurrency > 1) {
                 if (keyOrdered) {
-                    return messageFlux
-                        .groupBy(message -> resolveGroupKey(message, concurrency))
-                        .flatMap(
-                            groupedFlux ->
-                                groupedFlux
-                                    .concatMap(message -> handleMessage(message))
-                                    .subscribeOn(Schedulers.parallel()),
-                            concurrency
-                        );
+                    return InKeyOrderMessageProcessors.processInKeyOrderConcurrently(
+                        messageFlux,
+                        this::handleMessage,
+                        Schedulers.parallel(),
+                        concurrency
+                    );
                 } else {
                     return messageFlux.flatMap(
                         message -> handleMessage(message).subscribeOn(Schedulers.parallel()),
@@ -127,21 +123,6 @@ class DefaultReactiveMessageHandler<T> implements ReactiveMessageHandler {
                 .requireNonNull(streamingMessageHandler, "streamingMessageHandler or messageHandler must be set")
                 .apply(messageFlux);
         }
-    }
-
-    private static Integer resolveGroupKey(Message<?> message, int concurrency) {
-        byte[] keyBytes = null;
-        if (message.hasOrderingKey()) {
-            keyBytes = message.getOrderingKey();
-        } else if (message.hasKey()) {
-            keyBytes = message.getKeyBytes();
-        }
-        if (keyBytes == null || keyBytes.length == 0) {
-            // use a group that has been derived from the message id so that redeliveries get handled in order
-            keyBytes = message.getMessageId().toByteArray();
-        }
-        int keyHash = Murmur3_32Hash.getInstance().makeHash(keyBytes);
-        return keyHash % concurrency;
     }
 
     private Mono<MessageResult<Void>> handleMessage(Message<T> message) {
