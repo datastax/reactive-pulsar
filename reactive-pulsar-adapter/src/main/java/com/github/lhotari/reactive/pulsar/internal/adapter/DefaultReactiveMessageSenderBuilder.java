@@ -17,7 +17,8 @@ class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
     private ProducerConfigurer<T> producerConfigurer;
     private String topicName;
     private ReactiveProducerCache producerCache;
-    private int maxInflight = 100;
+    private int maxInflight = -1;
+    private int maxConcurrentSenderSubscriptions = InflightLimiter.DEFAULT_MAX_PENDING_SUBSCRIPTIONS;
     private Supplier<PublisherTransformer> producerActionTransformer = PublisherTransformer::identity;
 
     public DefaultReactiveMessageSenderBuilder(
@@ -49,13 +50,27 @@ class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
     @Override
     public ReactiveMessageSenderBuilder<T> maxInflight(int maxInflight) {
         this.maxInflight = maxInflight;
-        producerActionTransformer =
-            () -> new InflightLimiter(maxInflight, Math.max(maxInflight / 2, 1), Schedulers.single());
+        return this;
+    }
+
+    @Override
+    public ReactiveMessageSenderBuilder<T> maxConcurrentSenderSubscriptions(int maxConcurrentSenderSubscriptions) {
+        this.maxConcurrentSenderSubscriptions = maxConcurrentSenderSubscriptions;
         return this;
     }
 
     @Override
     public ReactiveMessageSender<T> build() {
+        if (maxInflight > 0) {
+            producerActionTransformer =
+                () ->
+                    new InflightLimiter(
+                        maxInflight,
+                        Math.max(maxInflight / 2, 1),
+                        Schedulers.single(),
+                        maxConcurrentSenderSubscriptions
+                    );
+        }
         return new DefaultReactiveMessageSender<>(
             schema,
             producerConfigurer,

@@ -18,7 +18,12 @@ class InflightLimiterTest {
     @Test
     void shouldLimitInflight() {
         List<Integer> values = Collections.synchronizedList(new ArrayList<>());
-        InflightLimiter inflightLimiter = new InflightLimiter(48, 24, Schedulers.single());
+        InflightLimiter inflightLimiter = new InflightLimiter(
+            48,
+            24,
+            Schedulers.single(),
+            InflightLimiter.DEFAULT_MAX_PENDING_SUBSCRIPTIONS
+        );
         Flux
             .merge(
                 Arrays.asList(

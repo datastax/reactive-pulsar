@@ -11,5 +11,7 @@ public interface ReactiveMessageSenderBuilder<T> {
 
     ReactiveMessageSenderBuilder<T> maxInflight(int maxInflight);
 
+    ReactiveMessageSenderBuilder<T> maxConcurrentSenderSubscriptions(int maxConcurrentSenderSubscriptions);
+
     ReactiveMessageSender<T> build();
 }

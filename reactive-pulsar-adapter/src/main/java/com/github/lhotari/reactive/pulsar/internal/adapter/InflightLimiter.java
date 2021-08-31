@@ -17,24 +17,31 @@ import reactor.util.context.Context;
 class InflightLimiter implements PublisherTransformer {
 
     private static final Logger LOG = LoggerFactory.getLogger(InflightLimiter.class);
-    MpmcArrayQueue<InflightLimiterSubscriber<?>> pendingSubscriptions = new MpmcArrayQueue<>(1024);
+    public static final int DEFAULT_MAX_PENDING_SUBSCRIPTIONS = 1024;
+    private final MpmcArrayQueue<InflightLimiterSubscriber<?>> pendingSubscriptions;
     private final AtomicInteger inflight = new AtomicInteger();
     private final AtomicInteger activeSubscriptions = new AtomicInteger();
     private final int maxInflight;
-    private final int maxSubscriptionInflight;
+    private final int expectedSubscriptionsInflight;
     private final Scheduler.Worker triggerNextWorker;
 
     public InflightLimiter(int maxInflight) {
-        this(maxInflight, maxInflight, Schedulers.single());
+        this(maxInflight, maxInflight, Schedulers.single(), DEFAULT_MAX_PENDING_SUBSCRIPTIONS);
     }
 
-    public InflightLimiter(int maxInflight, int maxSubscriptionInflight, Scheduler triggerNextScheduler) {
+    public InflightLimiter(
+        int maxInflight,
+        int expectedSubscriptionsInflight,
+        Scheduler triggerNextScheduler,
+        int maxPendingSubscriptions
+    ) {
         this.maxInflight = maxInflight;
-        this.maxSubscriptionInflight = maxSubscriptionInflight;
+        this.expectedSubscriptionsInflight = expectedSubscriptionsInflight;
         this.triggerNextWorker = triggerNextScheduler.createWorker();
-        if (maxSubscriptionInflight > maxInflight) {
+        if (expectedSubscriptionsInflight > maxInflight) {
             throw new IllegalArgumentException("maxSubscriptionInflight must be equal or less than maxInflight.");
         }
+        this.pendingSubscriptions = new MpmcArrayQueue<>(maxPendingSubscriptions);
     }
 
     @Override
@@ -175,14 +182,14 @@ class InflightLimiter implements PublisherTransformer {
         void requestMore() {
             if (
                 requestedDemand.get() > 0 &&
-                inflightForSubscription.get() <= maxSubscriptionInflight / 2 &&
+                inflightForSubscription.get() <= expectedSubscriptionsInflight / 2 &&
                 inflight.get() < maxInflight
             ) {
                 long maxRequest = Math.max(
                     Math.min(
                         Math.min(
                             Math.min(requestedDemand.get(), maxInflight - inflight.get()),
-                            maxSubscriptionInflight - inflightForSubscription.get()
+                            expectedSubscriptionsInflight - inflightForSubscription.get()
                         ),
                         maxInflight / activeSubscriptions.get()
                     ),
