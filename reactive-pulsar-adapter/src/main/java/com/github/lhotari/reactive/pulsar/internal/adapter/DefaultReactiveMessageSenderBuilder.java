@@ -6,12 +6,16 @@ import com.github.lhotari.reactive.pulsar.adapter.ReactiveMessageSenderBuilder;
 import com.github.lhotari.reactive.pulsar.resourceadapter.PublisherTransformer;
 import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveProducerAdapterFactory;
 import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveProducerCache;
+import java.util.Queue;
 import java.util.function.Supplier;
 import org.apache.pulsar.client.api.Schema;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.concurrent.Queues;
 
 class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBuilder<T> {
 
+    private static final int MAX_CONCURRENCY_LOWER_BOUND = 32;
+    private static final int MAX_CONCURRENCY_UPPER_BOUND = 256;
     private final Schema<T> schema;
     private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
     private ProducerConfigurer<T> producerConfigurer;
@@ -75,10 +79,14 @@ class DefaultReactiveMessageSenderBuilder<T> implements ReactiveMessageSenderBui
             schema,
             producerConfigurer,
             topicName,
-            maxInflight,
+            resolveMaxConcurrency(),
             reactiveProducerAdapterFactory,
             producerCache,
             producerActionTransformer
         );
+    }
+
+    private int resolveMaxConcurrency() {
+        return Math.min(Math.max(MAX_CONCURRENCY_LOWER_BOUND, maxInflight / 2), MAX_CONCURRENCY_UPPER_BOUND);
     }
 }

@@ -17,7 +17,7 @@ class DefaultReactiveMessageSender<T> implements ReactiveMessageSender<T> {
     private final Schema<T> schema;
     private final ProducerConfigurer<T> producerConfigurer;
     private final String topicName;
-    private final int maxInflight;
+    private final int maxConcurrency;
     private final ReactiveProducerAdapterFactory reactiveProducerAdapterFactory;
     private final ReactiveProducerCache producerCache;
     private final Supplier<PublisherTransformer> producerActionTransformer;
@@ -26,7 +26,7 @@ class DefaultReactiveMessageSender<T> implements ReactiveMessageSender<T> {
         Schema<T> schema,
         ProducerConfigurer<T> producerConfigurer,
         String topicName,
-        int maxInflight,
+        int maxConcurrency,
         ReactiveProducerAdapterFactory reactiveProducerAdapterFactory,
         ReactiveProducerCache producerCache,
         Supplier<PublisherTransformer> producerActionTransformer
@@ -34,7 +34,7 @@ class DefaultReactiveMessageSender<T> implements ReactiveMessageSender<T> {
         this.schema = schema;
         this.producerConfigurer = producerConfigurer;
         this.topicName = topicName;
-        this.maxInflight = maxInflight;
+        this.maxConcurrency = maxConcurrency;
         this.reactiveProducerAdapterFactory = reactiveProducerAdapterFactory;
         this.producerCache = producerCache;
         this.producerActionTransformer = producerActionTransformer;
@@ -76,7 +76,7 @@ class DefaultReactiveMessageSender<T> implements ReactiveMessageSender<T> {
         return createReactiveProducerAdapter()
             .usingProducerMany(producer ->
                 // TODO: ensure that inner publishers are subscribed in order so that message order is retained
-                messageSpecs.flatMapSequential(messageSpec -> createMessageMono(messageSpec, producer), maxInflight)
+                messageSpecs.flatMapSequential(messageSpec -> createMessageMono(messageSpec, producer), maxConcurrency)
             );
     }
 }
