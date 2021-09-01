@@ -242,3 +242,7 @@ There's currently [a discussion about contributing the library to Apache Pulsar 
 ##  Bugs and Feature Requests
 
 If you detect a bug or have a feature request or a good idea for Reactive Pulsar adapter, please [open a GitHub issue](https://github.com/lhotari/reactive-pulsar/issues/new) or ping one of the contributors on Twitter or on [Pulsar Slack](https://pulsar.apache.org/en/contact/).
+
+## Questions
+
+Please use [\[reactive-pulsar\]](https://stackoverflow.com/tags/reactive-pulsar) tag on Stackoverflow. [Ask a question now](https://stackoverflow.com/questions/ask?tags=apache-pulsar,reactive-pulsar).
