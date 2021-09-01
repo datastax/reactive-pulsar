@@ -235,13 +235,9 @@ Reactive Pulsar adapter library is Open Source Software released under the [Apac
 
 ## How to Contribute
 
-The library is Apache 2.0 licensed and accepts contributions via GitHub pull requests.
+The library is Apache 2.0 licensed.
 
-* Fork it
-* Create your feature branch (`git checkout -b my-new-feature`)
-* Commit your changes (`git commit -am 'Added some feature'`)
-* Push to the branch (`git push origin my-new-feature`)
-* Create new Pull Request
+There's currently [a discussion about contributing the library to Apache Pulsar project on the mailing list](https://lists.apache.org/thread.html/rc98c507d5eb8808714bf49972c2f9f152c54bf0a6b7fab8395308e64%40%3Cdev.pulsar.apache.org%3E). It is preferred to postpone contributions until there is a resolution to whether the project becomes a part of the Apache Pulsar project. Please check [the Apache Pulsar dev mailing list for updates](https://lists.apache.org/list.html?dev@pulsar.apache.org) on the topic.
 
 ##  Bugs and Feature Requests
 
