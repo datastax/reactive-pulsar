@@ -7,6 +7,7 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.GroupedFlux;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.concurrent.Queues;
 
 /**
  * Functions for implementing In-order parallel processing for Pulsar messages using Project Reactor.
@@ -58,7 +59,10 @@ public class InKeyOrderMessageProcessors {
         Flux<Message<T>> messageFlux,
         int numberOfGroups
     ) {
-        return messageFlux.groupBy(message -> resolveProcessingGroupForMessage(message, numberOfGroups));
+        return messageFlux.groupBy(
+            message -> resolveProcessingGroupForMessage(message, numberOfGroups),
+            Math.max(Queues.XS_BUFFER_SIZE, numberOfGroups)
+        );
     }
 
     /**
