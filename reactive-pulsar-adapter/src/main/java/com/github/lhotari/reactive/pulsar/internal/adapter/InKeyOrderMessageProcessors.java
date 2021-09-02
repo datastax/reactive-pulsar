@@ -7,6 +7,7 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.GroupedFlux;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.concurrent.Queues;
 
 /**
@@ -83,7 +84,7 @@ public class InKeyOrderMessageProcessors {
         int concurrency
     ) {
         return groupByProcessingGroup(messageFlux, concurrency)
-            .flatMap(groupedFlux -> groupedFlux.concatMap(messageHandler).subscribeOn(scheduler), concurrency);
+            .flatMap(groupedFlux -> groupedFlux.publishOn(scheduler).concatMap(messageHandler), concurrency);
     }
 
     /**
