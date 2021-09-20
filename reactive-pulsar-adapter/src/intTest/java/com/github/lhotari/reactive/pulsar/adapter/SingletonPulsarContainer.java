@@ -8,7 +8,7 @@ import org.testcontainers.utility.DockerImageName;
 public class SingletonPulsarContainer {
 
     public static PulsarContainer PULSAR_CONTAINER = new PulsarContainer(
-        DockerImageName.parse("apachepulsar/pulsar").withTag("2.8.0")
+        DockerImageName.parse("apachepulsar/pulsar").withTag("2.8.1")
     );
 
     static {
