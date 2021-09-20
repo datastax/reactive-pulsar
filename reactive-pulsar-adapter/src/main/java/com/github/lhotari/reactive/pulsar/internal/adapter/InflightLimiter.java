@@ -191,7 +191,7 @@ class InflightLimiter implements PublisherTransformer {
                             Math.min(requestedDemand.get(), maxInflight - inflight.get()),
                             expectedSubscriptionsInflight - inflightForSubscription.get()
                         ),
-                        maxInflight / activeSubscriptions.get()
+                        maxInflight / Math.max(activeSubscriptions.get(), 1)
                     ),
                     1
                 );
