@@ -161,7 +161,7 @@ public class CaffeineReactiveProducerCache implements ReactiveProducerCache, Aut
         void releaseLease() {
             int currentLeases = this.activeLeases.decrementAndGet();
             if (currentLeases == 0 && removed) {
-                closeProducer();
+                cleanupResources();
             }
         }
 
@@ -209,9 +209,16 @@ public class CaffeineReactiveProducerCache implements ReactiveProducerCache, Aut
         void close() {
             removed = true;
             if (activeLeases.get() == 0) {
-                closeProducer();
+                cleanupResources();
             }
-            producerActionTransformer.dispose();
+        }
+
+        private void cleanupResources() {
+            try {
+                closeProducer();
+            } finally {
+                producerActionTransformer.dispose();
+            }
         }
 
         private void closeProducer() {
