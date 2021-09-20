@@ -1,8 +1,10 @@
 package com.github.lhotari.reactive.pulsar.internal.adapter;
 
 import com.github.lhotari.reactive.pulsar.resourceadapter.PublisherTransformer;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import org.jctools.queues.MpmcArrayQueue;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
@@ -73,8 +75,7 @@ class InflightLimiter implements PublisherTransformer {
 
     <I> void handleSubscribe(Publisher<I> source, CoreSubscriber<? super I> actual) {
         activeSubscriptions.incrementAndGet();
-        InflightLimiterSubscriber<I> subscriber = new InflightLimiterSubscriber<I>(actual);
-        source.subscribe(subscriber);
+        InflightLimiterSubscriber<I> subscriber = new InflightLimiterSubscriber<I>(actual, source);
         actual.onSubscribe(subscriber.getSubscription());
     }
 
@@ -96,6 +97,16 @@ class InflightLimiter implements PublisherTransformer {
         }
     }
 
+    void scheduleSubscribed(InflightLimiterSubscriber<?> subscriber) {
+        if (!triggerNextWorker.isDisposed()) {
+            triggerNextWorker.schedule(() -> {
+                if (!subscriber.isDisposed()) {
+                    subscriber.requestMore();
+                }
+            });
+        }
+    }
+
     @Override
     public void dispose() {
         triggerNextWorker.dispose();
@@ -107,10 +118,22 @@ class InflightLimiter implements PublisherTransformer {
         return triggerNextWorker.isDisposed();
     }
 
+    private enum InflightLimiterSubscriberState {
+        INITIAL,
+        SUBSCRIBING,
+        SUBSCRIBED,
+        REQUESTING
+    }
+
     private class InflightLimiterSubscriber<I> extends BaseSubscriber<I> {
 
         private final CoreSubscriber<? super I> actual;
+        private final Publisher<I> source;
         private AtomicLong requestedDemand = new AtomicLong();
+        private AtomicReference<InflightLimiterSubscriberState> state = new AtomicReference<>(
+            InflightLimiterSubscriberState.INITIAL
+        );
+
         private final Subscription subscription = new Subscription() {
             @Override
             public void request(long n) {
@@ -126,8 +149,9 @@ class InflightLimiter implements PublisherTransformer {
         };
         private AtomicInteger inflightForSubscription = new AtomicInteger();
 
-        public InflightLimiterSubscriber(CoreSubscriber<? super I> actual) {
+        public InflightLimiterSubscriber(CoreSubscriber<? super I> actual, Publisher<I> source) {
             this.actual = actual;
+            this.source = source;
         }
 
         @Override
@@ -136,7 +160,16 @@ class InflightLimiter implements PublisherTransformer {
         }
 
         @Override
-        protected void hookOnSubscribe(Subscription subscription) {}
+        protected void hookOnSubscribe(Subscription subscription) {
+            if (
+                state.compareAndSet(
+                    InflightLimiterSubscriberState.SUBSCRIBING,
+                    InflightLimiterSubscriberState.SUBSCRIBED
+                )
+            ) {
+                scheduleSubscribed(this);
+            }
+        }
 
         @Override
         protected void hookOnNext(I value) {
@@ -181,24 +214,56 @@ class InflightLimiter implements PublisherTransformer {
 
         void requestMore() {
             if (
-                requestedDemand.get() > 0 &&
-                inflightForSubscription.get() <= expectedSubscriptionsInflight / 2 &&
-                inflight.get() < maxInflight
+                state.get() == InflightLimiterSubscriberState.SUBSCRIBED ||
+                (
+                    requestedDemand.get() > 0 &&
+                    inflightForSubscription.get() <= expectedSubscriptionsInflight / 2 &&
+                    inflight.get() < maxInflight
+                )
             ) {
-                long maxRequest = Math.max(
-                    Math.min(
+                if (
+                    state.compareAndSet(
+                        InflightLimiterSubscriberState.INITIAL,
+                        InflightLimiterSubscriberState.SUBSCRIBING
+                    )
+                ) {
+                    // consume one slot for the subscription, since the first element might already be in flight
+                    // when a CompletableFuture is mapped to a Mono
+                    inflight.incrementAndGet();
+                    requestedDemand.decrementAndGet();
+                    inflightForSubscription.incrementAndGet();
+                    source.subscribe(InflightLimiterSubscriber.this);
+                } else if (
+                    state.get() == InflightLimiterSubscriberState.REQUESTING ||
+                    state.get() == InflightLimiterSubscriberState.SUBSCRIBED
+                ) {
+                    // subscribing changed the values, so adjust back the values on first call
+                    if (
+                        state.compareAndSet(
+                            InflightLimiterSubscriberState.SUBSCRIBED,
+                            InflightLimiterSubscriberState.REQUESTING
+                        )
+                    ) {
+                        // reverse the slot reservation made when transitioning from INITIAL to SUBSCRIBING
+                        inflight.decrementAndGet();
+                        requestedDemand.incrementAndGet();
+                        inflightForSubscription.decrementAndGet();
+                    }
+                    long maxRequest = Math.max(
                         Math.min(
-                            Math.min(requestedDemand.get(), maxInflight - inflight.get()),
-                            expectedSubscriptionsInflight - inflightForSubscription.get()
+                            Math.min(
+                                Math.min(requestedDemand.get(), maxInflight - inflight.get()),
+                                expectedSubscriptionsInflight - inflightForSubscription.get()
+                            ),
+                            maxInflight / Math.max(activeSubscriptions.get(), 1)
                         ),
-                        maxInflight / Math.max(activeSubscriptions.get(), 1)
-                    ),
-                    1
-                );
-                inflight.addAndGet((int) maxRequest);
-                requestedDemand.addAndGet(-maxRequest);
-                inflightForSubscription.addAndGet((int) maxRequest);
-                request(maxRequest);
+                        1
+                    );
+                    inflight.addAndGet((int) maxRequest);
+                    requestedDemand.addAndGet(-maxRequest);
+                    inflightForSubscription.addAndGet((int) maxRequest);
+                    request(maxRequest);
+                }
             } else {
                 maybeAddToPending();
             }
