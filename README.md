@@ -8,7 +8,9 @@ This uses Project Reactor as the Reactive Streams implementation.
 The API is evolving and the documentation and examples might not match the released version available in Maven central.
 Please keep this in mind when using the library and the applying the examples.
 
-This library will be presented at SpringOne 2021 in the talk [Reactive Applications with Apache Pulsar and Spring Boot](https://springone.io/2021/sessions/reactive-applications-with-apache-pulsar-and-spring-boot). The [SpringOne 2021](https://springone.io/) virtual conference is free. Please join the talk online!
+## Presentation about the library
+
+This library was presented at SpringOne 2021 in the talk [Reactive Applications with Apache Pulsar and Spring Boot](https://springone.io/2021/sessions/reactive-applications-with-apache-pulsar-and-spring-boot). The slides and recording are available at the conference website.
 
 ## Getting it
 
