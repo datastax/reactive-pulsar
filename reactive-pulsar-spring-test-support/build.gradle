@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    api 'org.springframework:spring-test:5.3.9'
-    api 'org.springframework:spring-context:5.3.9'
+    api 'org.springframework:spring-test:5.3.13'
+    api 'org.springframework:spring-context:5.3.13'
     api 'org.testcontainers:pulsar:1.16.0'
     api 'org.apache.pulsar:pulsar-client:2.8.1'
     api 'org.apache.pulsar:pulsar-client-admin:2.8.1'
