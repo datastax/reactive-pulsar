@@ -7,12 +7,12 @@ dependencies {
     api 'org.springframework.boot:spring-boot:2.6.1'
     api 'org.springframework.boot:spring-boot-autoconfigure:2.6.1'
     api project(':reactive-pulsar-adapter'), project(':reactive-pulsar-caffeine-producer-cache')
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'io.projectreactor:reactor-test:3.4.12'
-    testImplementation 'org.assertj:assertj-core:3.20.2'
-    intTestImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    testImplementation 'org.assertj:assertj-core:3.21.0'
+    intTestImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     intTestImplementation 'org.testcontainers:pulsar:1.16.2'
-    intTestImplementation 'org.assertj:assertj-core:3.20.2'
+    intTestImplementation 'org.assertj:assertj-core:3.21.0'
 }
 
 description = "Spring Boot Starter for Reactive Streams adapter for Apache Pulsar Java client"

@@ -7,9 +7,9 @@ dependencies {
     api 'com.github.ben-manes.caffeine:caffeine:2.9.2'
     api 'org.apache.pulsar:pulsar-client:2.8.1'
     api 'io.projectreactor:reactor-core:3.4.12'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'io.projectreactor:reactor-test:3.4.12'
-    testImplementation 'org.assertj:assertj-core:3.20.2'
+    testImplementation 'org.assertj:assertj-core:3.21.0'
 }
 
 description = "Caffeine implementation of ReactiveProducerCache"
