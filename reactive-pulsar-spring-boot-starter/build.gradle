@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    api 'org.springframework.boot:spring-boot:2.5.3'
-    api 'org.springframework.boot:spring-boot-autoconfigure:2.5.3'
+    api 'org.springframework.boot:spring-boot:2.6.1'
+    api 'org.springframework.boot:spring-boot-autoconfigure:2.6.1'
     api project(':reactive-pulsar-adapter'), project(':reactive-pulsar-caffeine-producer-cache')
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
     testImplementation 'io.projectreactor:reactor-test:3.4.12'
