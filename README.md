@@ -8,9 +8,11 @@ This uses Project Reactor as the Reactive Streams implementation.
 The API is evolving and the documentation and examples might not match the released version available in Maven central.
 Please keep this in mind when using the library and the applying the examples.
 
-## Presentation about the library
+## Presentations about the library
 
-This library was presented at SpringOne 2021 in the talk [Reactive Applications with Apache Pulsar and Spring Boot](https://springone.io/2021/sessions/reactive-applications-with-apache-pulsar-and-spring-boot). The slides and recording are available at the conference website.
+* [SpringOne 2021: Reactive Applications with Apache Pulsar and Spring Boot](https://springone.io/2021/sessions/reactive-applications-with-apache-pulsar-and-spring-boot)
+* [ApacheCon 2021: Building resilient and scalable API backends with Apache Pulsar and Spring Reactive](https://github.com/lhotari/reactive-iot-backend-ApacheCon2021)
+
 
 ## Getting it
 
@@ -42,6 +44,7 @@ With Maven:
 ## Spring Boot starter
 
 There's a Spring Boot example at https://github.com/lhotari/reactive-pulsar-showcase .
+Another Spring Boot example is available at https://github.com/lhotari/reactive-iot-backend-ApacheCon2021 .
 
 Getting it with Gradle:
 
