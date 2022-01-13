@@ -4,13 +4,13 @@ plugins {
 }
 
 dependencies {
-    api 'org.apache.pulsar:pulsar-client:2.8.1'
-    api 'io.projectreactor:reactor-core:3.4.12'
+    api 'org.apache.pulsar:pulsar-client:2.8.2'
+    api 'io.projectreactor:reactor-core:3.4.14'
     implementation 'org.jctools:jctools-core:3.3.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
-    testImplementation 'io.projectreactor:reactor-test:3.4.12'
-    testImplementation 'org.assertj:assertj-core:3.21.0'
+    testImplementation 'io.projectreactor:reactor-test:3.4.14'
+    testImplementation 'org.assertj:assertj-core:3.22.0'
 
     testImplementation "org.apache.logging.log4j:log4j-api:2.17.1"
     testImplementation "org.apache.logging.log4j:log4j-core:2.17.1"
@@ -19,7 +19,7 @@ dependencies {
 
     intTestImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     intTestImplementation 'org.testcontainers:pulsar:1.16.2'
-    intTestImplementation 'org.assertj:assertj-core:3.21.0'
+    intTestImplementation 'org.assertj:assertj-core:3.22.0'
     intTestImplementation project(':reactive-pulsar-caffeine-producer-cache')
 
     intTestImplementation "org.apache.logging.log4j:log4j-api:2.17.1"
