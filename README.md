@@ -242,7 +242,7 @@ Reactive Pulsar adapter library is Open Source Software released under the [Apac
 
 The library is Apache 2.0 licensed.
 
-There's currently [a discussion about contributing the library to Apache Pulsar project on the mailing list](https://lists.apache.org/thread.html/rc98c507d5eb8808714bf49972c2f9f152c54bf0a6b7fab8395308e64%40%3Cdev.pulsar.apache.org%3E). It is preferred to postpone contributions until there is a resolution to whether the project becomes a part of the Apache Pulsar project. Please check [the Apache Pulsar dev mailing list for updates](https://lists.apache.org/list.html?dev@pulsar.apache.org) on the topic.
+Contributions are welcome. Contributors will be asked to sign a CLA before the contributions are merged since there's a desire to be able to move the Reactive Pulsar project under Apache in the future. Without CLAs that process comes complicated.
 
 ##  Bugs and Feature Requests
 
