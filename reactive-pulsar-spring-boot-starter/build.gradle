@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:2.6.2"
     api 'org.springframework.boot:spring-boot:2.6.2'
     api 'org.springframework.boot:spring-boot-autoconfigure:2.6.2'
     api project(':reactive-pulsar-adapter'), project(':reactive-pulsar-caffeine-producer-cache')
