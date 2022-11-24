@@ -1,0 +1,2 @@
+com.github.lhotari.reactive.pulsar.spring.PulsarClientAutoConfiguration
+com.github.lhotari.reactive.pulsar.spring.PulsarReactiveAdapterAutoConfiguration
