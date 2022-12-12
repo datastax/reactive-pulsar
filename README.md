@@ -5,7 +5,7 @@ This uses Project Reactor as the Reactive Streams implementation.
 
 ## Update: This project is deprecated and replaced by official Reactive client for Apache Pulsar and Spring Pulsar
 
-Please migrate to use [Reactive client for Apache Pulsar](https://github.com/apache/pulsar-client-reactive] and [Spring Pulsar](https://github.com/spring-projects-experimental/spring-pulsar).
+Please migrate to use [Reactive client for Apache Pulsar](https://github.com/apache/pulsar-client-reactive) and [Spring Pulsar](https://github.com/spring-projects-experimental/spring-pulsar).
 Spring Pulsar contains reactive support.
 
 ## Library status: API is evolving
