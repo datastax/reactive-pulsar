@@ -7,8 +7,8 @@ dependencies {
     api 'org.springframework:spring-test:5.3.14'
     api 'org.springframework:spring-context:5.3.14'
     api 'org.testcontainers:pulsar:1.16.2'
-    api 'org.apache.pulsar:pulsar-client:2.8.2'
-    api 'org.apache.pulsar:pulsar-client-admin:2.8.2'
+    api 'org.apache.pulsar:pulsar-client:2.10.2'
+    api 'org.apache.pulsar:pulsar-client-admin:2.10.2'
 }
 
 description = "Spring Test integration test support for Reactive Streams adapter for Apache Pulsar Java client"

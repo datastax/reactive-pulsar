@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    api 'org.apache.pulsar:pulsar-client:2.8.2'
+    api 'org.apache.pulsar:pulsar-client:2.10.2'
     api 'io.projectreactor:reactor-core:3.4.14'
     implementation 'org.jctools:jctools-core:3.3.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'

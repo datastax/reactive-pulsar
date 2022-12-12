@@ -2,7 +2,7 @@ package com.github.lhotari.reactive.pulsar.internal.adapter;
 
 import java.util.function.Function;
 import org.apache.pulsar.client.api.Message;
-import org.apache.pulsar.client.impl.Murmur3_32Hash;
+import org.apache.pulsar.client.impl.Murmur3Hash32;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.GroupedFlux;
@@ -30,7 +30,7 @@ public class InKeyOrderMessageProcessors {
      */
     public static int resolveProcessingGroupForMessage(Message<?> message, int numberOfGroups) {
         byte[] keyBytes = getMessageKeyBytes(message);
-        int keyHash = Murmur3_32Hash.getInstance().makeHash(keyBytes);
+        int keyHash = Murmur3Hash32.getInstance().makeHash(keyBytes);
         return keyHash % numberOfGroups;
     }
 
