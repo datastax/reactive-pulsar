@@ -6,11 +6,11 @@ import com.github.lhotari.reactive.pulsar.resourceadapter.ReactiveProducerCache;
 import com.github.lhotari.reactive.pulsar.resourceadapter.ReactivePulsarResourceAdapter;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 public class PulsarReactiveAdapterAutoConfiguration {
 
     @Bean
